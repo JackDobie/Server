@@ -27,8 +27,8 @@ namespace Client
             {
                 tcpClient.Connect(ipAddress, port);
                 stream = tcpClient.GetStream();
-                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                StreamWriter writer = new StreamWriter(stream, Encoding.UTF8);
+                reader = new StreamReader(stream, Encoding.UTF8);
+                writer = new StreamWriter(stream, Encoding.UTF8);
                 return true;
             }
             catch(Exception e)

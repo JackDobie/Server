@@ -68,7 +68,7 @@ namespace Server
             }
             catch(Exception e)
             {
-                client.Send("Exception: " + e.Message);
+                Console.WriteLine("Exception: " + e.Message);
             }
         }
 
@@ -79,12 +79,11 @@ namespace Server
                 switch(i)
                 {
                     case 0:
-                        return "Press 0 for options\nPress 1 for to say Hello\nPress 2 to stop server";
+                        return "Press 0 for options. Press 1 for to say Hello. Press 2 to say Hi";
                     case 1:
                         return "Hello";
                     case 2:
-                        Stop();
-                        break;
+                        return "Hi";
                     default:
                         return "No valid option selected. Press 0 for options.";
                 }

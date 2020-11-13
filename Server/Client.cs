@@ -19,6 +19,7 @@ namespace Server
 
         public Client(Socket clientSocket)
         {
+            readLock = new object();
             writeLock = new object();
             socket = clientSocket;
             stream = new NetworkStream(socket);

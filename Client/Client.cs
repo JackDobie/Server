@@ -47,9 +47,9 @@ namespace Client
             {
                 writer.WriteLine(userInput);
                 writer.Flush();
-                ProcessServerResponse();
-                if ((userInput = Console.ReadLine()) != null)
+                if (userInput.ToLower() == "end")
                     break;
+                ProcessServerResponse();
             }
             tcpClient.Close();
         }

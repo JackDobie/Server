@@ -42,14 +42,14 @@ namespace Server
 
             while((receivedMessage = reader.ReadLine()) != null)
             {
-                string response = GetReturnMessage(receivedMessage);
-                if (response.Equals("end", StringComparison.OrdinalIgnoreCase))
+                receivedMessage = GetReturnMessage(receivedMessage);
+                if (receivedMessage.Equals("end", StringComparison.OrdinalIgnoreCase))
                 {
                     writer.WriteLine("User has left the server");
                     writer.Flush();
                     break;
                 }
-                writer.WriteLine(response);
+                writer.WriteLine(receivedMessage);
                 writer.Flush();
             }
             socket.Close();
@@ -61,8 +61,11 @@ namespace Server
             {
                 case "Hello":
                     return "Hi";
+                case "End":
+                case "end":
+                    return "end";
                 default:
-                    return "ooga booga";
+                    return "oaisdjoiasjd";
             }
         }
     }

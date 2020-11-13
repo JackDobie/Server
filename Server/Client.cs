@@ -22,8 +22,8 @@ namespace Server
             writeLock = new object();
             socket = clientSocket;
             stream = new NetworkStream(socket);
-            StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-            StreamWriter writer = new StreamWriter(stream, Encoding.UTF8);
+            reader = new StreamReader(stream, Encoding.UTF8);
+            writer = new StreamWriter(stream, Encoding.UTF8);
         }
 
         public void Close()

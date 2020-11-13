@@ -36,12 +36,19 @@ namespace Server
 
         public string Read()
         {
-
+            lock (readLock)
+            {
+                return reader.ReadLine();
+            }
         }
 
         public void Send(string message)
         {
-
+            lock(writeLock)
+            {
+                writer.WriteLine(message);
+                writer.Flush();
+            }
         }
     }
 }

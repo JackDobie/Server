@@ -5,16 +5,19 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Client
 {
-    class Client
+    public class Client
     {
         private TcpClient tcpClient;
         private NetworkStream stream;
         private StreamWriter writer;
         private StreamReader reader;
+
+        private ClientForm clientForm;
 
         public Client()
         {
@@ -40,23 +43,34 @@ namespace Client
 
         public void Run()
         {
-            string userInput;
-            ProcessServerResponse();
+            clientForm = new ClientForm(this);
+            Thread thread = new Thread(ProcessServerResponse);
+            thread.Start();
+            clientForm.ShowDialog();
 
-            while((userInput = Console.ReadLine()) != null)
-            {
-                writer.WriteLine(userInput);
-                writer.Flush();
-                if (userInput.ToLower() == "end")
-                    break;
-                ProcessServerResponse();
-            }
+            //string userInput;
+            //ProcessServerResponse();
+
+            //while((userInput = Console.ReadLine()) != null)
+            //{
+            //    writer.WriteLine(userInput);
+            //    writer.Flush();
+            //    if (userInput.ToLower() == "end")
+            //        break;
+            //    ProcessServerResponse();
+            //}
             tcpClient.Close();
         }
 
         private void ProcessServerResponse()
         {
             Console.WriteLine("Server says: " + reader.ReadLine() + " \n");
+        }
+
+        public void SendMessage(string message)
+        {
+            writer.WriteLine(message);
+            writer.Flush();
         }
     }
 }

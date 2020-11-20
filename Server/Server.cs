@@ -53,6 +53,9 @@ namespace Server
             {
                 string receivedMessage;
                 client.Send("Send 0 for available options");
+
+                IEnumerator<Client> clientsEnum = clients.GetEnumerator();
+
                 while ((receivedMessage = client.Read()) != null)
                 {
                     receivedMessage = GetReturnMessage(receivedMessage);
@@ -61,7 +64,12 @@ namespace Server
                         client.Send("User has left the server");
                         break;
                     }
-                    client.Send(receivedMessage);
+                    foreach(Client client1 in clients)
+                    {
+                        client1.Send(receivedMessage);
+                        Console.WriteLine("Written to client");
+                    }
+                    //client.Send(receivedMessage);
                 }
                 client.Close();
                 clients.TryTake(out client);
@@ -70,6 +78,11 @@ namespace Server
             {
                 Console.WriteLine("Exception: " + e.Message);
             }
+        }
+
+        private void GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
 
         private string GetReturnMessage(string code)

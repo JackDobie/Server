@@ -36,10 +36,15 @@ namespace Client
             }
             else
             {
-                MessageWindow.Text += message + Environment.NewLine;
-                MessageWindow.SelectionStart = MessageWindow.Text.Length;
-                MessageWindow.ScrollToCaret();
+                SendToChat(message);
             }
+        }
+
+        public void SendToChat(string message)
+        {
+            MessageWindow.Text += message + Environment.NewLine;
+            MessageWindow.SelectionStart = MessageWindow.Text.Length;
+            MessageWindow.ScrollToCaret();
         }
 
         private void SubmitButton_Click(object sender, EventArgs e)
@@ -92,7 +97,11 @@ namespace Client
         public void UserListBox_Edit(string oldUser, string newUser)
         {
             int index = userList.FindIndex(x => x.StartsWith(oldUser));
+            string temp = userList[index];
             userList[index] = newUser;
+
+            SendToChat("User `" + temp + "` changed their name to `" + newUser + "`.");
+
             UserListBox.Text = ("Users:" + Environment.NewLine + string.Join(Environment.NewLine, userList));
         }
         public void UserListBox_Remove(string user)

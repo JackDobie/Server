@@ -43,6 +43,30 @@ namespace Client
             InputField.Text = "";
         }
 
+        private List<Keys> keysPressed = new List<Keys>();
+        public void InputField_KeyDown(object sender, KeyEventArgs e)
+        {
+            keysPressed.Add(e.KeyCode);
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                    if(keysPressed.Contains(Keys.ShiftKey))
+                    {
+
+                    }
+                    else
+                    {
+                        SubmitButton_Click(null, null);
+                    }
+                    break;
+            }
+        }
+
+        public void InputField_KeyUp(object sender, KeyEventArgs e)
+        {
+            keysPressed.Remove(e.KeyCode);
+        }
+
         //public ClientForm()
         //{
         //    InitializeComponent();

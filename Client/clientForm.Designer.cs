@@ -59,6 +59,8 @@
             this.InputField.Name = "InputField";
             this.InputField.Size = new System.Drawing.Size(687, 61);
             this.InputField.TabIndex = 2;
+            this.InputField.KeyDown += new System.Windows.Forms.KeyEventHandler(this.InputField_KeyDown);
+            this.InputField.KeyUp += new System.Windows.Forms.KeyEventHandler(this.InputField_KeyUp);
             // 
             // ClientForm
             // 

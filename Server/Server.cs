@@ -67,7 +67,6 @@ namespace Server
                     foreach(Client client1 in clients)
                     {
                         client1.Send(receivedMessage);
-                        Console.WriteLine("Written to client");
                     }
                     //client.Send(receivedMessage);
                 }

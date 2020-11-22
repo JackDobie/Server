@@ -38,6 +38,7 @@
             this.MessageWindow.Location = new System.Drawing.Point(12, 12);
             this.MessageWindow.Multiline = true;
             this.MessageWindow.Name = "MessageWindow";
+            this.MessageWindow.ReadOnly = true;
             this.MessageWindow.Size = new System.Drawing.Size(776, 359);
             this.MessageWindow.TabIndex = 0;
             // 

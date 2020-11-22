@@ -59,7 +59,7 @@ namespace Client
             //        break;
             //    ProcessServerResponse();
             //}
-            tcpClient.Close();
+            //tcpClient.Close();
         }
 
         private void ProcessServerResponse()
@@ -67,10 +67,18 @@ namespace Client
             Console.WriteLine("Server says: " + reader.ReadLine() + " \n");
         }
 
-        public void SendMessage(string message)
+        public void SendMessage(string sender, string message)
         {
-            writer.WriteLine(message);
-            writer.Flush();
+            if(message.Equals("end", StringComparison.OrdinalIgnoreCase))
+            {
+                tcpClient.Close();
+            }
+            else
+            {
+                writer.WriteLine(sender + ": " + message);
+                clientForm.UpdateChatWindow(sender + ": " + message);
+                writer.Flush();
+            }
         }
     }
 }

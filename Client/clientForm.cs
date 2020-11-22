@@ -39,7 +39,7 @@ namespace Client
 
         private void SubmitButton_Click(object sender, EventArgs e)
         {
-            client.SendMessage(sender + ": " + InputField.Text);
+            client.SendMessage("Jack", InputField.Text);
             InputField.Text = "";
         }
 

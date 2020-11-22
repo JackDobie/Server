@@ -117,4 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="MessageWindow.Text" xml:space="preserve">
+    <value>Welcome to the chat.
+Type messages in the box below and press submit or enter to send. Press shift+enter for new line.
+You can change your user name in the top right. It will be applied once you click out of the box. You cannot have an empty name.</value>
+  </data>
 </root>

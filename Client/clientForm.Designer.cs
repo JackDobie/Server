@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClientForm));
             this.MessageWindow = new System.Windows.Forms.TextBox();
             this.SubmitButton = new System.Windows.Forms.Button();
             this.InputField = new System.Windows.Forms.TextBox();
@@ -43,6 +44,7 @@
             this.MessageWindow.ReadOnly = true;
             this.MessageWindow.Size = new System.Drawing.Size(619, 359);
             this.MessageWindow.TabIndex = 0;
+            this.MessageWindow.Text = resources.GetString("MessageWindow.Text");
             // 
             // SubmitButton
             // 
@@ -78,7 +80,7 @@
             // 
             this.UserListBox.Location = new System.Drawing.Point(637, 38);
             this.UserListBox.Multiline = true;
-            this.UserListBox.Name = "UserList";
+            this.UserListBox.Name = "UserListBox";
             this.UserListBox.ReadOnly = true;
             this.UserListBox.Size = new System.Drawing.Size(151, 333);
             this.UserListBox.TabIndex = 4;

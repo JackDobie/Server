@@ -80,7 +80,7 @@ namespace Client
         public void NameTextBox_LostFocus(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(NameTextBox.Text))
-                NameTextBox.Text = "User";
+                NameTextBox.Text = userName;
             else
             {
                 UserListBox_Edit(userName, NameTextBox.Text);

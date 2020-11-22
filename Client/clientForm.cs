@@ -53,10 +53,10 @@ namespace Client
             InputField.Text = "";
         }
 
-        private List<Keys> keysPressed = new List<Keys>();//stores any keys currently pressed
+        private List<Keys> keysPressed = new List<Keys>(); //stores any keys currently pressed
         public void InputField_KeyDown(object sender, KeyEventArgs e)
         {
-            keysPressed.Add(e.KeyCode);//adds and removes keys pressed to check for multiple key presses
+            keysPressed.Add(e.KeyCode); //adds and removes keys pressed to check for multiple key presses
             if(e.KeyCode == Keys.Enter && !(keysPressed.Contains(Keys.ShiftKey)))//if the user presses enter, click the button. if user presses shift+enter, make new line
             {
                 if (!string.IsNullOrWhiteSpace(InputField.Text))

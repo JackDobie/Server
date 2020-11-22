@@ -14,10 +14,15 @@ namespace Client
     {
         private Client client;
 
+        public string userName = "User";
+        public List<string> userList = new List<string>();
+
         public ClientForm(Client client1)
         {
             InitializeComponent();
             client = client1;
+
+            UserListBox_Add(NameTextBox.Text);
         }
 
         public void UpdateChatWindow(string message)
@@ -39,11 +44,11 @@ namespace Client
 
         private void SubmitButton_Click(object sender, EventArgs e)
         {
-            client.SendMessage(NameTextBox.Text, InputField.Text.Trim());
+            client.SendMessage(userName, InputField.Text.Trim());
             InputField.Text = "";
         }
 
-        private List<Keys> keysPressed = new List<Keys>();
+        private List<Keys> keysPressed = new List<Keys>();//stores any keys currently pressed
         public void InputField_KeyDown(object sender, KeyEventArgs e)
         {
             keysPressed.Add(e.KeyCode);//adds and removes keys pressed to check for multiple key presses
@@ -60,25 +65,41 @@ namespace Client
             keysPressed.Remove(e.KeyCode);
         }
 
-        /// <summary> Removes the placeholder text for the nickname text box </summary>
-        public void RemovePlaceHolderText(object sender, EventArgs e)
+        public void NameTextBox_GotFocus(object sender, EventArgs e)
         {
             if(NameTextBox.Text == "User")
             {
                 NameTextBox.Text = "";
             }
         }
-
-        /// <summary> Adds the placeholder text for the nickname text box </summary>
-        public void AddPlaceHolderText(object sender, EventArgs e)
+        public void NameTextBox_LostFocus(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(NameTextBox.Text))
                 NameTextBox.Text = "User";
+            else
+            {
+                UserListBox_Edit(userName, NameTextBox.Text);
+                userName = NameTextBox.Text;
+            }
         }
 
-        //public ClientForm()
-        //{
-        //    InitializeComponent();
-        //}
+        public void UserListBox_Add(string user)
+        {
+            userList.Add(user);
+            UserListBox.Text = ("Users:" + Environment.NewLine + string.Join(Environment.NewLine, userList));
+            //UserListBox.Text
+        }
+        public void UserListBox_Edit(string oldUser, string newUser)
+        {
+            int index = userList.FindIndex(x => x.StartsWith(oldUser));
+            userList[index] = newUser;
+            UserListBox.Text = ("Users:" + Environment.NewLine + string.Join(Environment.NewLine, userList));
+        }
+        public void UserListBox_Remove(string user)
+        {
+            int index = userList.FindIndex(x => x.StartsWith(user));
+            userList.RemoveAt(index);
+            UserListBox.Text = ("Users:" + Environment.NewLine + string.Join(Environment.NewLine, userList));
+        }
     }
 }

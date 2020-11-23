@@ -33,7 +33,7 @@
             this.SubmitButton = new System.Windows.Forms.Button();
             this.InputField = new System.Windows.Forms.TextBox();
             this.NameTextBox = new System.Windows.Forms.TextBox();
-            this.UserListBox = new System.Windows.Forms.TextBox();
+            this.UserListBox = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // MessageWindow
@@ -78,13 +78,11 @@
             // 
             // UserListBox
             // 
-            this.UserListBox.Location = new System.Drawing.Point(637, 38);
-            this.UserListBox.Multiline = true;
+            this.UserListBox.FormattingEnabled = true;
+            this.UserListBox.Location = new System.Drawing.Point(637, 42);
             this.UserListBox.Name = "UserListBox";
-            this.UserListBox.ReadOnly = true;
-            this.UserListBox.Size = new System.Drawing.Size(151, 333);
-            this.UserListBox.TabIndex = 4;
-            this.UserListBox.Text = "Users:";
+            this.UserListBox.Size = new System.Drawing.Size(151, 329);
+            this.UserListBox.TabIndex = 5;
             // 
             // ClientForm
             // 
@@ -110,6 +108,6 @@
         private System.Windows.Forms.Button SubmitButton;
         private System.Windows.Forms.TextBox InputField;
         private System.Windows.Forms.TextBox NameTextBox;
-        private System.Windows.Forms.TextBox UserListBox;
+        private System.Windows.Forms.ListBox UserListBox;
     }
 }

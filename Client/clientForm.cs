@@ -42,6 +42,15 @@ namespace Client
 
         public void SendToChat(string message)
         {
+            if(message.Contains("@" + userName))
+            {
+                this.Font = new Font(this.Font, FontStyle.Bold);
+            }
+            else if (this.Font.Bold)
+            {
+                this.Font = new Font(this.Font, FontStyle.Regular);
+            }
+
             MessageWindow.Text += message + Environment.NewLine;
             MessageWindow.SelectionStart = MessageWindow.Text.Length;
             MessageWindow.ScrollToCaret();
@@ -83,32 +92,22 @@ namespace Client
                 NameTextBox.Text = userName;
             else
             {
-                UserListBox_Edit(userName, NameTextBox.Text);
+                UserListBox_Edit(UserListBox.Items.IndexOf(userName), NameTextBox.Text);
                 userName = NameTextBox.Text;
             }
         }
 
         public void UserListBox_Add(string user)
         {
-            userList.Add(user);
-            UserListBox.Text = ("Users:" + Environment.NewLine + string.Join(Environment.NewLine, userList));
-            //UserListBox.Text
+            UserListBox.Items.Add(user);
         }
-        public void UserListBox_Edit(string oldUser, string newUser)
+        public void UserListBox_Edit(int index, string newUser)
         {
-            int index = userList.FindIndex(x => x.StartsWith(oldUser));
-            string temp = userList[index];
-            userList[index] = newUser;
-
-            SendToChat("User `" + temp + "` changed their name to `" + newUser + "`.");
-
-            UserListBox.Text = ("Users:" + Environment.NewLine + string.Join(Environment.NewLine, userList));
+            UserListBox.Items[index] = newUser;
         }
-        public void UserListBox_Remove(string user)
+        public void UserListBox_Remove(int index)
         {
-            int index = userList.FindIndex(x => x.StartsWith(user));
-            userList.RemoveAt(index);
-            UserListBox.Text = ("Users:" + Environment.NewLine + string.Join(Environment.NewLine, userList));
+            UserListBox.Items.RemoveAt(index);
         }
     }
 }

@@ -40,20 +40,20 @@ namespace Client
             }
         }
 
-        public void SendToChat(string msg)
+        public void SendToChat(string message)
         {
-            string message = msg;
-            if (msg.Contains("@" + userName))
+            MessageWindow.SelectionStart = MessageWindow.Text.Length;
+            if (message.Contains("@" + userName))
             {
                 MessageWindow.SelectionStart = MessageWindow.Text.Length;
-                MessageWindow.SelectedRtf = @"{\rtf1\ansi \b " + msg + " \b}";
+                MessageWindow.SelectedRtf = @"{\rtf1\ansi \b " + message + " \b}";
             }
             else
             {
-                MessageWindow.Text += msg + Environment.NewLine;
+                MessageWindow.Text += message + Environment.NewLine;
                 MessageWindow.SelectionStart = MessageWindow.Text.Length;
-                MessageWindow.ScrollToCaret();
             }
+            MessageWindow.ScrollToCaret();
         }
 
         private void SubmitButton_Click(object sender, EventArgs e)
@@ -97,6 +97,14 @@ namespace Client
             }
         }
 
+        public void UserListBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            int index = this.UserListBox.IndexFromPoint(e.Location);
+            if (index != ListBox.NoMatches)
+            {
+                InputField.Text += ("@" + UserListBox.Items[index].ToString());
+            }
+        }
         public void UserListBox_Add(string user)
         {
             UserListBox.Items.Add(user);

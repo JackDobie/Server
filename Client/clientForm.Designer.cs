@@ -73,6 +73,7 @@
             this.UserListBox.Name = "UserListBox";
             this.UserListBox.Size = new System.Drawing.Size(151, 329);
             this.UserListBox.TabIndex = 5;
+            this.UserListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.UserListBox_MouseDoubleClick);
             // 
             // MessageWindow
             // 

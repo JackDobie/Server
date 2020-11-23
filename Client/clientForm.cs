@@ -96,6 +96,19 @@ namespace Client
                 userName = NameTextBox.Text;
             }
         }
+        public void NameTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Enter)
+            {
+                if (string.IsNullOrWhiteSpace(NameTextBox.Text))
+                    NameTextBox.Text = userName;
+                else
+                {
+                    UserListBox_Edit(UserListBox.Items.IndexOf(userName), NameTextBox.Text);
+                    userName = NameTextBox.Text;
+                }
+            }
+        }
 
         public void UserListBox_MouseDoubleClick(object sender, MouseEventArgs e)
         {

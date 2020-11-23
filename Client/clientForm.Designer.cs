@@ -64,6 +64,7 @@
             this.NameTextBox.TabIndex = 3;
             this.NameTextBox.Text = "User";
             this.NameTextBox.GotFocus += new System.EventHandler(this.NameTextBox_GotFocus);
+            this.NameTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.NameTextBox_KeyDown);
             this.NameTextBox.LostFocus += new System.EventHandler(this.NameTextBox_LostFocus);
             // 
             // UserListBox

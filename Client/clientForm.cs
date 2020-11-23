@@ -15,7 +15,6 @@ namespace Client
         private Client client;
 
         public string userName = "User";
-        public List<string> userList = new List<string>();
 
         public ClientForm(Client client1)
         {
@@ -124,6 +123,16 @@ namespace Client
         }
         public void UserListBox_Edit(int index, string newUser)
         {
+            try
+            {
+                if (userName == (string)UserListBox.Items[index])
+                    userName = newUser;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Exception: " + ex);
+            }
+
             UserListBox.Items[index] = newUser;
         }
         public void UserListBox_Remove(int index)

@@ -40,20 +40,20 @@ namespace Client
             }
         }
 
-        public void SendToChat(string message)
+        public void SendToChat(string msg)
         {
-            if(message.Contains("@" + userName))
+            string message = msg;
+            if (msg.Contains("@" + userName))
             {
-                this.Font = new Font(this.Font, FontStyle.Bold);
+                MessageWindow.SelectionStart = MessageWindow.Text.Length;
+                MessageWindow.SelectedRtf = @"{\rtf1\ansi \b " + msg + " \b}";
             }
-            else if (this.Font.Bold)
+            else
             {
-                this.Font = new Font(this.Font, FontStyle.Regular);
+                MessageWindow.Text += msg + Environment.NewLine;
+                MessageWindow.SelectionStart = MessageWindow.Text.Length;
+                MessageWindow.ScrollToCaret();
             }
-
-            MessageWindow.Text += message + Environment.NewLine;
-            MessageWindow.SelectionStart = MessageWindow.Text.Length;
-            MessageWindow.ScrollToCaret();
         }
 
         private void SubmitButton_Click(object sender, EventArgs e)

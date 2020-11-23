@@ -29,22 +29,12 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClientForm));
-            this.MessageWindow = new System.Windows.Forms.TextBox();
             this.SubmitButton = new System.Windows.Forms.Button();
             this.InputField = new System.Windows.Forms.TextBox();
             this.NameTextBox = new System.Windows.Forms.TextBox();
             this.UserListBox = new System.Windows.Forms.ListBox();
+            this.MessageWindow = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
-            // 
-            // MessageWindow
-            // 
-            this.MessageWindow.Location = new System.Drawing.Point(12, 12);
-            this.MessageWindow.Multiline = true;
-            this.MessageWindow.Name = "MessageWindow";
-            this.MessageWindow.ReadOnly = true;
-            this.MessageWindow.Size = new System.Drawing.Size(619, 359);
-            this.MessageWindow.TabIndex = 0;
-            this.MessageWindow.Text = resources.GetString("MessageWindow.Text");
             // 
             // SubmitButton
             // 
@@ -84,16 +74,25 @@
             this.UserListBox.Size = new System.Drawing.Size(151, 329);
             this.UserListBox.TabIndex = 5;
             // 
+            // MessageWindow
+            // 
+            this.MessageWindow.Location = new System.Drawing.Point(12, 12);
+            this.MessageWindow.Name = "MessageWindow";
+            this.MessageWindow.ReadOnly = true;
+            this.MessageWindow.Size = new System.Drawing.Size(619, 359);
+            this.MessageWindow.TabIndex = 6;
+            this.MessageWindow.Text = resources.GetString("MessageWindow.Text");
+            // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.MessageWindow);
             this.Controls.Add(this.UserListBox);
             this.Controls.Add(this.NameTextBox);
             this.Controls.Add(this.InputField);
             this.Controls.Add(this.SubmitButton);
-            this.Controls.Add(this.MessageWindow);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "ClientForm";
             this.Text = "ClientForm";
@@ -103,11 +102,10 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.TextBox MessageWindow;
         private System.Windows.Forms.Button SubmitButton;
         private System.Windows.Forms.TextBox InputField;
         private System.Windows.Forms.TextBox NameTextBox;
         private System.Windows.Forms.ListBox UserListBox;
+        private System.Windows.Forms.RichTextBox MessageWindow;
     }
 }

@@ -34,6 +34,10 @@
             this.NameTextBox = new System.Windows.Forms.TextBox();
             this.UserListBox = new System.Windows.Forms.ListBox();
             this.MessageWindow = new System.Windows.Forms.RichTextBox();
+            this.IPAddressBox = new System.Windows.Forms.TextBox();
+            this.PortBox = new System.Windows.Forms.TextBox();
+            this.ConnectButton = new System.Windows.Forms.Button();
+            this.DisconnectButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // SubmitButton
@@ -58,7 +62,7 @@
             // 
             // NameTextBox
             // 
-            this.NameTextBox.Location = new System.Drawing.Point(637, 12);
+            this.NameTextBox.Location = new System.Drawing.Point(637, 120);
             this.NameTextBox.Name = "NameTextBox";
             this.NameTextBox.Size = new System.Drawing.Size(151, 20);
             this.NameTextBox.TabIndex = 3;
@@ -70,9 +74,9 @@
             // UserListBox
             // 
             this.UserListBox.FormattingEnabled = true;
-            this.UserListBox.Location = new System.Drawing.Point(637, 42);
+            this.UserListBox.Location = new System.Drawing.Point(637, 146);
             this.UserListBox.Name = "UserListBox";
-            this.UserListBox.Size = new System.Drawing.Size(151, 329);
+            this.UserListBox.Size = new System.Drawing.Size(151, 225);
             this.UserListBox.TabIndex = 5;
             this.UserListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.UserListBox_MouseDoubleClick);
             // 
@@ -85,11 +89,55 @@
             this.MessageWindow.TabIndex = 6;
             this.MessageWindow.Text = resources.GetString("MessageWindow.Text");
             // 
+            // IPAddressBox
+            // 
+            this.IPAddressBox.Location = new System.Drawing.Point(637, 12);
+            this.IPAddressBox.Name = "IPAddressBox";
+            this.IPAddressBox.Size = new System.Drawing.Size(151, 20);
+            this.IPAddressBox.TabIndex = 7;
+            this.IPAddressBox.Text = "127.0.0.1";
+            this.IPAddressBox.GotFocus += new System.EventHandler(this.IPAddressBox_GotFocus);
+            this.IPAddressBox.LostFocus += new System.EventHandler(this.IPAddressBox_LostFocus);
+            // 
+            // PortBox
+            // 
+            this.PortBox.Location = new System.Drawing.Point(637, 38);
+            this.PortBox.Name = "PortBox";
+            this.PortBox.Size = new System.Drawing.Size(151, 20);
+            this.PortBox.TabIndex = 8;
+            this.PortBox.Text = "4444";
+            this.PortBox.GotFocus += new System.EventHandler(this.PortBox_GotFocus);
+            this.PortBox.LostFocus += new System.EventHandler(this.PortBox_LostFocus);
+            // 
+            // ConnectButton
+            // 
+            this.ConnectButton.Location = new System.Drawing.Point(637, 64);
+            this.ConnectButton.Name = "ConnectButton";
+            this.ConnectButton.Size = new System.Drawing.Size(71, 46);
+            this.ConnectButton.TabIndex = 9;
+            this.ConnectButton.Text = "Connect";
+            this.ConnectButton.UseVisualStyleBackColor = true;
+            this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
+            // 
+            // DisconnectButton
+            // 
+            this.DisconnectButton.Location = new System.Drawing.Point(714, 64);
+            this.DisconnectButton.Name = "DisconnectButton";
+            this.DisconnectButton.Size = new System.Drawing.Size(74, 46);
+            this.DisconnectButton.TabIndex = 10;
+            this.DisconnectButton.Text = "Disconnect";
+            this.DisconnectButton.UseVisualStyleBackColor = true;
+            this.DisconnectButton.Click += new System.EventHandler(this.DisconnectButton_Click);
+            // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.DisconnectButton);
+            this.Controls.Add(this.ConnectButton);
+            this.Controls.Add(this.PortBox);
+            this.Controls.Add(this.IPAddressBox);
             this.Controls.Add(this.MessageWindow);
             this.Controls.Add(this.UserListBox);
             this.Controls.Add(this.NameTextBox);
@@ -109,5 +157,9 @@
         private System.Windows.Forms.TextBox NameTextBox;
         private System.Windows.Forms.ListBox UserListBox;
         private System.Windows.Forms.RichTextBox MessageWindow;
+        private System.Windows.Forms.TextBox IPAddressBox;
+        private System.Windows.Forms.TextBox PortBox;
+        private System.Windows.Forms.Button ConnectButton;
+        private System.Windows.Forms.Button DisconnectButton;
     }
 }

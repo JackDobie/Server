@@ -21,22 +21,40 @@ namespace Client
 
         public Client()
         {
-            tcpClient = new TcpClient();
         }
 
         public bool Connect(string ipAddress, int port)
         {
             try
             {
-                tcpClient.Connect(ipAddress, port);
+                tcpClient = new TcpClient(ipAddress, port);
                 stream = tcpClient.GetStream();
                 reader = new StreamReader(stream, Encoding.UTF8);
                 writer = new StreamWriter(stream, Encoding.UTF8);
+                Console.WriteLine("Connected to " + ipAddress + ": " + port);
                 return true;
             }
             catch(Exception e)
             {
                 Console.Write("Exception: " + e.Message);
+                return false;
+            }
+        }
+
+        public bool Disconnect()
+        {
+            try
+            {
+                reader.Close();
+                writer.Close();
+                stream.Close();
+                tcpClient.Close();
+                Console.WriteLine("Disconnected.");
+                return true;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
                 return false;
             }
         }
@@ -47,19 +65,6 @@ namespace Client
             Thread thread = new Thread(ProcessServerResponse);
             thread.Start();
             clientForm.ShowDialog();
-
-            //string userInput;
-            //ProcessServerResponse();
-
-            //while((userInput = Console.ReadLine()) != null)
-            //{
-            //    writer.WriteLine(userInput);
-            //    writer.Flush();
-            //    if (userInput.ToLower() == "end")
-            //        break;
-            //    ProcessServerResponse();
-            //}
-            //tcpClient.Close();
         }
 
         private void ProcessServerResponse()
@@ -69,16 +74,9 @@ namespace Client
 
         public void SendMessage(string sender, string message)
         {
-            if(message.Equals("end", StringComparison.OrdinalIgnoreCase))
-            {
-                tcpClient.Close();
-            }
-            else
-            {
-                writer.WriteLine(sender + ": " + message);
-                clientForm.UpdateChatWindow(sender + ": " + message);
-                writer.Flush();
-            }
+            writer.WriteLine(sender + ": " + message);
+            clientForm.UpdateChatWindow(sender + ": " + message);
+            writer.Flush();
         }
     }
 }

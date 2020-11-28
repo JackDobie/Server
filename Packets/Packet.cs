@@ -11,7 +11,7 @@ namespace Packets
         ChatMessage,
         PrivateMessage,
         ClientName
-    };
+    }
 
     [Serializable]
     public class Packet

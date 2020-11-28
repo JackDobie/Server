@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Collections.Concurrent;
+using Packets;
 
 namespace Server
 {
@@ -15,27 +16,30 @@ namespace Server
     {
         private TcpListener tcpListener;
 
-        private ConcurrentBag<Client> clients;
+        private ConcurrentDictionary<int, Client> clients;
 
         public Server(string ipAdress, int port)
         {
             IPAddress IP = IPAddress.Parse(ipAdress);
             tcpListener = new TcpListener(IP, port);
         }
-        
+
         public void Start()
         {
-            clients = new ConcurrentBag<Client>();
+            clients = new ConcurrentDictionary<int, Client>();
             tcpListener.Start();
+            int index = 0;
             while(true)
             {
                 Socket socket = tcpListener.AcceptSocket();
                 Console.WriteLine("Connection made");
 
-                Client client = new Client(socket);
-                clients.Add(client);
+                index++;
 
-                Thread thread = new Thread(() => { ClientMethod(client); });
+                Client client = new Client(socket);
+                clients.TryAdd(index, client);
+
+                Thread thread = new Thread(() => { ClientMethod(index); });
                 thread.Start();
             }
             //Socket socket = tcpListener.AcceptSocket();
@@ -47,31 +51,30 @@ namespace Server
             tcpListener.Stop();
         }
 
-        private void ClientMethod(Client client)
+        private void ClientMethod(int index)
         {
             try
             {
-                string receivedMessage;
-                client.Send("Send 0 for available options");
+                Packet receivedMessage;
 
-                IEnumerator<Client> clientsEnum = clients.GetEnumerator();
-
-                while ((receivedMessage = client.Read()) != null)
+                while ((receivedMessage = clients[index].Read()) != null)
                 {
-                    receivedMessage = GetReturnMessage(receivedMessage);
-                    if (receivedMessage.Equals("end", StringComparison.OrdinalIgnoreCase))
+                    switch(receivedMessage.packetType)
                     {
-                        client.Send("User has left the server");
-                        break;
+                        case PacketType.ChatMessage:
+                            ChatMessagePacket chatPacket = (ChatMessagePacket)receivedMessage;
+                            foreach (KeyValuePair<int, Client> cli in clients)
+                            {
+                                if(cli.Value != clients[index])
+                                {
+                                    cli.Value.Send(chatPacket);
+                                }
+                            }
+                            break;
                     }
-                    foreach(Client client1 in clients)
-                    {
-                        client1.Send(receivedMessage);
-                    }
-                    //client.Send(receivedMessage);
                 }
-                client.Close();
-                clients.TryTake(out client);
+                clients[index].Close();
+                clients.TryRemove(index, out Client c);
             }
             catch(Exception e)
             {
@@ -82,35 +85,6 @@ namespace Server
         private void GetEnumerator()
         {
             throw new NotImplementedException();
-        }
-
-        private string GetReturnMessage(string code)
-        {
-            if(Int32.TryParse(code, out int i))
-            {
-                switch(i)
-                {
-                    case 0:
-                        return "Press 0 for options. Press 1 for to say Hello. Press 2 to say Hi";
-                    case 1:
-                        return "Hello";
-                    case 2:
-                        return "Hi";
-                    default:
-                        return "No valid option selected. Press 0 for options.";
-                }
-            }
-
-            switch(code)
-            {
-                case "Hello":
-                    return "Hi";
-                case "End":
-                case "end":
-                    return "end";
-                default:
-                    return "oaisdjoiasjd";
-            }
         }
     }
 }

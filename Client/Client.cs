@@ -64,12 +64,19 @@ namespace Client
             clientForm = new ClientForm(this);
             Thread thread = new Thread(ProcessServerResponse);
             thread.Start();
+
             clientForm.ShowDialog();
         }
 
         private void ProcessServerResponse()
         {
-            Console.WriteLine("Server says: " + reader.ReadLine() + " \n");
+            string input;
+            while ((input = Console.ReadLine()) != null)
+            {
+                writer.WriteLine(input);
+                writer.Flush();
+                clientForm.UpdateChatWindow(reader.ReadLine());
+            }
         }
 
         public void SendMessage(string sender, string message)

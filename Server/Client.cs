@@ -14,11 +14,11 @@ namespace Server
     {
         private Socket socket;
         private NetworkStream stream;
+        private BinaryFormatter formatter;
         private BinaryReader reader;
         private BinaryWriter writer;
         private object readLock;
         private object writeLock;
-        private BinaryFormatter formatter;
 
         public Client(Socket clientSocket)
         {

@@ -19,7 +19,7 @@ namespace Client
         private string ipAddress = "127.0.0.1";
         private int port = 4444;
 
-        private bool disconnected = false;
+        private bool connected = true;
 
         public ClientForm(Client client1)
         {
@@ -61,7 +61,7 @@ namespace Client
 
         void SubmitButton_Click(object sender, EventArgs e)
         {
-            if(!disconnected)
+            if(connected)
             {
                 client.SendMessage(userName, InputField.Text.Trim());
                 InputField.Text = "";
@@ -185,13 +185,13 @@ namespace Client
         {
             if (client.Disconnect())
             {
-                disconnected = true;
+                connected = false;
 
                 SendToChat_Bold("Connecting to " + ipAddress + ": " + port + "...");
                 if (client.Connect(ipAddress, port))
                 {
                     SendToChat_Bold("You have connected to the server.");
-                    disconnected = false;
+                    connected = true;
                 }
                 else
                 {
@@ -206,11 +206,11 @@ namespace Client
 
         void DisconnectButton_Click(object sender, EventArgs e)
         {
-            if(!disconnected)
+            if(connected)
             {
                 if (client.Disconnect())
                 {
-                    disconnected = true;
+                    connected = false;
                     SendToChat_Bold("You have disconnected from the server.");
                 }
                 else

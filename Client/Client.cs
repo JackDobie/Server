@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Packets;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,10 +16,13 @@ namespace Client
     {
         private TcpClient tcpClient;
         private NetworkStream stream;
-        private StreamWriter writer;
-        private StreamReader reader;
+        private BinaryFormatter formatter;
+        private BinaryReader reader;
+        private BinaryWriter writer;
 
         private ClientForm clientForm;
+
+        private bool connected = false;
 
         public Client()
         {
@@ -29,9 +34,11 @@ namespace Client
             {
                 tcpClient = new TcpClient(ipAddress, port);
                 stream = tcpClient.GetStream();
-                reader = new StreamReader(stream, Encoding.UTF8);
-                writer = new StreamWriter(stream, Encoding.UTF8);
+                formatter = new BinaryFormatter();
+                reader = new BinaryReader(stream, Encoding.UTF8);
+                writer = new BinaryWriter(stream, Encoding.UTF8);
                 Console.WriteLine("Connected to " + ipAddress + ": " + port);
+                connected = true;
                 return true;
             }
             catch(Exception e)
@@ -50,6 +57,7 @@ namespace Client
                 stream.Close();
                 tcpClient.Close();
                 Console.WriteLine("Disconnected.");
+                connected = false;
                 return true;
             }
             catch(Exception ex)
@@ -70,19 +78,41 @@ namespace Client
 
         private void ProcessServerResponse()
         {
-            string input;
-            while ((input = Console.ReadLine()) != null)
+            int byteNum;
+            while ((byteNum = reader.ReadInt32()) != 0)
             {
-                writer.WriteLine(input);
-                writer.Flush();
-                clientForm.UpdateChatWindow(reader.ReadLine());
+                if (!connected)
+                    break;
+
+                byte[] buffer = reader.ReadBytes(byteNum);
+                MemoryStream memstream = new MemoryStream(buffer);
+
+                Packet packet = formatter.Deserialize(memstream) as Packet;
+
+                switch (packet.packetType)
+                {
+                    case PacketType.ChatMessage:
+                        ChatMessagePacket chatPacket = (ChatMessagePacket)packet;
+                        clientForm.UpdateChatWindow(chatPacket.message);
+                        break;
+                }
             }
         }
 
         public void SendMessage(string sender, string message)
         {
-            writer.WriteLine(sender + ": " + message);
-            clientForm.UpdateChatWindow(sender + ": " + message);
+            string msg = (sender + ": " + message);
+            clientForm.UpdateChatWindow(msg);
+            ChatMessagePacket packet = new ChatMessagePacket(msg);
+            SendPacket(packet);
+        }
+        void SendPacket(Packet packet)
+        {
+            MemoryStream memstream = new MemoryStream();
+            formatter.Serialize(memstream, packet);
+            byte[] buffer = memstream.GetBuffer();
+            writer.Write(buffer.Length);
+            writer.Write(buffer);
             writer.Flush();
         }
     }

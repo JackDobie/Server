@@ -22,12 +22,13 @@ namespace Server
         {
             IPAddress IP = IPAddress.Parse(ipAdress);
             tcpListener = new TcpListener(IP, port);
+            clients = new ConcurrentDictionary<int, Client>();
         }
 
         public void Start()
         {
-            clients = new ConcurrentDictionary<int, Client>();
             tcpListener.Start();
+
             int index = 0;
             while(true)
             {

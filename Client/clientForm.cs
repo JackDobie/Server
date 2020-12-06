@@ -28,7 +28,6 @@ namespace Client
             client = client1;
 
             NameTextBox.Text = userName;
-            //UserListBox_Add(NameTextBox.Text);
         }
 
         public void UpdateChatWindow(string message)
@@ -50,7 +49,6 @@ namespace Client
                 else
                 {
                     SendToChat(message);
-                    MessageWindow.Text += message + Environment.NewLine;
                 }
                 MessageWindow.ScrollToCaret();
             }
@@ -103,7 +101,6 @@ namespace Client
             else
             {
                 client.EditName(userName, NameTextBox.Text);
-                //UserListBox_Edit(userName, NameTextBox.Text);
                 userName = NameTextBox.Text;
             }
         }
@@ -116,7 +113,6 @@ namespace Client
                 else
                 {
                     client.EditName(userName, NameTextBox.Text);
-                    //UserListBox_Edit(userName, NameTextBox.Text);
                     userName = NameTextBox.Text;
                 }
             }

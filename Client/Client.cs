@@ -117,7 +117,6 @@ namespace Client
         }
         public void ConnectPacket(string userName)
         {
-            Console.WriteLine("Connect");
             ConnectPacket packet = new ConnectPacket(userName);
             SendPacket(packet);
         }

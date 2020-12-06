@@ -15,7 +15,7 @@ namespace Client
     {
         private Client client;
 
-        public string userName = new Random().Next(9999).ToString();
+        public string userName = "User";//new Random().Next(9999).ToString();
 
         private string ipAddress = "127.0.0.1";
         private int port = 4444;
@@ -73,26 +73,20 @@ namespace Client
         {
             if(connected)
             {
-                client.SendMessage(userName, InputField.Text.Trim());
-                InputField.Text = "";
-            }
-        }
-
-        List<Keys> keysPressed = new List<Keys>(); //stores any keys currently pressed
-        void InputField_KeyDown(object sender, KeyEventArgs e)
-        {
-            keysPressed.Add(e.KeyCode); //adds and removes keys pressed to check for multiple key presses
-            if(e.KeyCode == Keys.Enter && !(keysPressed.Contains(Keys.ShiftKey)))//if the user presses enter, click the button. if user presses shift+enter, make new line
-            {
                 if (!string.IsNullOrWhiteSpace(InputField.Text))
                 {
-                    SubmitButton_Click(null, null);
+                    client.SendMessage(userName, InputField.Text.Trim());
+                    InputField.Text = "";
                 }
             }
         }
-        void InputField_KeyUp(object sender, KeyEventArgs e)
+
+        void InputField_KeyDown(object sender, KeyEventArgs e)
         {
-            keysPressed.Remove(e.KeyCode);
+            if(e.KeyCode == Keys.Enter)
+            {
+                SubmitButton_Click(null, null);
+            }
         }
 
         void NameTextBox_GotFocus(object sender, EventArgs e)

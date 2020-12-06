@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,8 @@ namespace Packets
         PrivateMessage,
         ClientName,
         NewName,
-        Connect
+        Connect,
+        UserListPacket
     }
 
     [Serializable]
@@ -57,6 +59,17 @@ namespace Packets
         {
             userName = _userName;
             packetType = PacketType.Connect;
+        }
+    }
+    [Serializable]
+    public class UserListPacket : Packet
+    {
+        public ConcurrentBag<string> userList;
+
+        public UserListPacket(ConcurrentBag<string> _userList)
+        {
+            userList = _userList;
+            packetType = PacketType.UserListPacket;
         }
     }
 }

@@ -18,11 +18,14 @@ namespace Server
 
         private ConcurrentDictionary<int, Client> clients;
 
+        private ConcurrentBag<string> userList;
+
         public Server(string ipAdress, int port)
         {
             IPAddress IP = IPAddress.Parse(ipAdress);
             tcpListener = new TcpListener(IP, port);
             clients = new ConcurrentDictionary<int, Client>();
+            userList = new ConcurrentBag<string>();
         }
 
         public void Start()
@@ -84,9 +87,11 @@ namespace Server
                             break;
                         case PacketType.Connect:
                             ConnectPacket conPacket = (ConnectPacket)receivedMessage;
+                            userList.Add(conPacket.userName);
+                            UserListPacket listPacket = new UserListPacket(userList);
                             foreach (KeyValuePair<int, Client> cli in clients)
                             {
-
+                                cli.Value.Send(listPacket);
                             }
                             break;
                         default:

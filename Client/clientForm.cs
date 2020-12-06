@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -167,6 +168,21 @@ namespace Client
             else
             {
                 UserListBox_Add(newUser);
+            }
+        }
+        public void UserListBox_Edit(ConcurrentBag<string> list)
+        {
+            if (UserListBox.InvokeRequired)
+            {
+                Invoke(new Action(() =>
+                {
+                    UserListBox_Edit(list);
+                }));
+            }
+            else
+            {
+                UserListBox.Items.Clear();
+                UserListBox.Items.AddRange(list.ToArray());
             }
         }
         void UserListBox_Remove(int index)

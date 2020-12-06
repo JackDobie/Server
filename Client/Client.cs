@@ -95,15 +95,6 @@ namespace Client
                         ChatMessagePacket chatPacket = (ChatMessagePacket)packet;
                         clientForm.UpdateChatWindow(chatPacket.message);
                         break;
-                    case PacketType.ClientName:
-                        NewNamePacket namePacket = (NewNamePacket)packet;
-                        clientForm.UserListBox_Edit(namePacket.oldName, namePacket.newName);
-                        break;
-                    //case PacketType.Connect:
-                    //    ConnectPacket conPacket = (ConnectPacket)packet;
-                    //    //clientForm.UserListBox_Edit(null, conPacket.userName);
-                    //    clientForm.UserListBox_Add(conPacket.userName);
-                    //    break;
                     case PacketType.UserListPacket:
                         UserListPacket listPacket = (UserListPacket)packet;
                         clientForm.UserListBox_Edit(listPacket.userList);
@@ -121,7 +112,6 @@ namespace Client
         }
         public void EditName(string oldName, string newName)
         {
-            clientForm.UserListBox_Edit(oldName, newName);
             NewNamePacket packet = new NewNamePacket(oldName, newName);
             SendPacket(packet);
         }

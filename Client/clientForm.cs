@@ -149,28 +149,8 @@ namespace Client
             {
                 UserListBox.Items.Add(user);
             }
-            //this.Invoke((MethodInvoker)(() => UserListBox.Items.Add(user)));
         }
-        public void UserListBox_Edit(string oldUser, string newUser)
-        {
-            if(oldUser != null)
-            {
-                if(UserListBox.Items.Contains(oldUser))
-                {
-                    int index = UserListBox.Items.IndexOf(oldUser);
-
-                    if (userName == oldUser)
-                        userName = newUser;
-
-                    UserListBox.Items[index] = newUser;
-                }
-            }
-            else
-            {
-                UserListBox_Add(newUser);
-            }
-        }
-        public void UserListBox_Edit(ConcurrentBag<string> list)
+        public void UserListBox_Edit(ConcurrentDictionary<int, string> list)
         {
             if (UserListBox.InvokeRequired)
             {
@@ -182,7 +162,7 @@ namespace Client
             else
             {
                 UserListBox.Items.Clear();
-                UserListBox.Items.AddRange(list.ToArray());
+                UserListBox.Items.AddRange(list.Values.ToArray());
             }
         }
         void UserListBox_Remove(int index)

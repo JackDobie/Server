@@ -64,9 +64,9 @@ namespace Packets
     [Serializable]
     public class UserListPacket : Packet
     {
-        public ConcurrentBag<string> userList;
+        public ConcurrentDictionary<int, string> userList;
 
-        public UserListPacket(ConcurrentBag<string> _userList)
+        public UserListPacket(ConcurrentDictionary<int, string> _userList)
         {
             userList = _userList;
             packetType = PacketType.UserListPacket;

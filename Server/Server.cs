@@ -18,14 +18,14 @@ namespace Server
 
         private ConcurrentDictionary<int, Client> clients;
 
-        private ConcurrentBag<string> userList;
+        private ConcurrentDictionary<int, string> userList;
 
         public Server(string ipAdress, int port)
         {
             IPAddress IP = IPAddress.Parse(ipAdress);
             tcpListener = new TcpListener(IP, port);
             clients = new ConcurrentDictionary<int, Client>();
-            userList = new ConcurrentBag<string>();
+            userList = new ConcurrentDictionary<int, string>();
         }
 
         public void Start()
@@ -77,17 +77,28 @@ namespace Server
                             break;
                         case PacketType.NewName:
                             NewNamePacket namePacket = (NewNamePacket)receivedMessage;
+
+                            try
+                            {
+                                int key = userList.First(x => x.Value == namePacket.oldName).Key;
+                                userList.TryUpdate(key, namePacket.newName, namePacket.oldName);
+                            }
+                            catch(Exception e)
+                            {
+                                Console.WriteLine("Exception: " + e);
+                                break;
+                            }
+
+                            UserListPacket userListPacket = new UserListPacket(userList);
+
                             foreach (KeyValuePair<int, Client> cli in clients)
                             {
-                                if (cli.Value != clients[index])
-                                {
-                                    cli.Value.Send(namePacket);
-                                }
+                                cli.Value.Send(userListPacket);
                             }
                             break;
                         case PacketType.Connect:
                             ConnectPacket conPacket = (ConnectPacket)receivedMessage;
-                            userList.Add(conPacket.userName);
+                            userList.TryAdd(userList.Count, conPacket.userName);
                             UserListPacket listPacket = new UserListPacket(userList);
                             foreach (KeyValuePair<int, Client> cli in clients)
                             {

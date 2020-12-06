@@ -72,6 +72,26 @@ namespace Server
                                 }
                             }
                             break;
+                        case PacketType.NewName:
+                            NewNamePacket namePacket = (NewNamePacket)receivedMessage;
+                            foreach (KeyValuePair<int, Client> cli in clients)
+                            {
+                                if (cli.Value != clients[index])
+                                {
+                                    cli.Value.Send(namePacket);
+                                }
+                            }
+                            break;
+                        case PacketType.Connect:
+                            ConnectPacket conPacket = (ConnectPacket)receivedMessage;
+                            foreach (KeyValuePair<int, Client> cli in clients)
+                            {
+
+                            }
+                            break;
+                        default:
+                            Console.WriteLine("Received packet of type " + receivedMessage.packetType);
+                            break;
                     }
                 }
                 clients[index].Close();

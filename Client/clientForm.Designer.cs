@@ -146,6 +146,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "ClientForm";
             this.Text = "ClientForm";
+            this.VisibleChanged += new System.EventHandler(this.ClientForm_VisibleChanged);
             this.ResumeLayout(false);
             this.PerformLayout();
 

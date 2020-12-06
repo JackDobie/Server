@@ -14,7 +14,7 @@ namespace Client
     {
         private Client client;
 
-        public string userName = "User";
+        public string userName = new Random().Next(9999).ToString();
 
         private string ipAddress = "127.0.0.1";
         private int port = 4444;
@@ -26,7 +26,8 @@ namespace Client
             InitializeComponent();
             client = client1;
 
-            UserListBox_Add(NameTextBox.Text);
+            NameTextBox.Text = userName;
+            //UserListBox_Add(NameTextBox.Text);
         }
 
         public void UpdateChatWindow(string message)
@@ -43,20 +44,28 @@ namespace Client
                 MessageWindow.SelectionStart = MessageWindow.Text.Length;
                 if (message.Contains("@" + userName))
                 {
-                    SendToChat_Bold(message);
+                    SendToChat(message, bold:true);
                 }
                 else
                 {
+                    SendToChat(message);
                     MessageWindow.Text += message + Environment.NewLine;
                 }
                 MessageWindow.ScrollToCaret();
             }
         }
 
-        void SendToChat_Bold(string message)
+        void SendToChat(string message, bool bold = false)
         {
-            MessageWindow.SelectionStart = MessageWindow.Text.Length;
-            MessageWindow.SelectedRtf = @"{\rtf1\ansi \b " + message + Environment.NewLine + @" \b}";
+            if(bold)
+            {
+                MessageWindow.SelectionStart = MessageWindow.Text.Length;
+                MessageWindow.SelectedRtf = @"{\rtf1\ansi \b " + message + Environment.NewLine + @" \b}";
+            }
+            else
+            {
+                MessageWindow.Text += message + Environment.NewLine;
+            }
         }
 
         void SubmitButton_Click(object sender, EventArgs e)
@@ -98,7 +107,8 @@ namespace Client
                 NameTextBox.Text = userName;
             else
             {
-                UserListBox_Edit(UserListBox.Items.IndexOf(userName), NameTextBox.Text);
+                client.EditName(userName, NameTextBox.Text);
+                //UserListBox_Edit(userName, NameTextBox.Text);
                 userName = NameTextBox.Text;
             }
         }
@@ -110,7 +120,8 @@ namespace Client
                     NameTextBox.Text = userName;
                 else
                 {
-                    UserListBox_Edit(UserListBox.Items.IndexOf(userName), NameTextBox.Text);
+                    client.EditName(userName, NameTextBox.Text);
+                    //UserListBox_Edit(userName, NameTextBox.Text);
                     userName = NameTextBox.Text;
                 }
             }
@@ -124,23 +135,39 @@ namespace Client
                 InputField.Text += ("@" + UserListBox.Items[index].ToString());
             }
         }
-        void UserListBox_Add(string user)
+        public void UserListBox_Add(string user)
         {
-            UserListBox.Items.Add(user);
+            if (UserListBox.InvokeRequired)
+            {
+                Invoke(new Action(() =>
+                {
+                    UserListBox_Add(user);
+                }));
+            }
+            else
+            {
+                UserListBox.Items.Add(user);
+            }
+            //this.Invoke((MethodInvoker)(() => UserListBox.Items.Add(user)));
         }
-        void UserListBox_Edit(int index, string newUser)
+        public void UserListBox_Edit(string oldUser, string newUser)
         {
-            try
+            if(oldUser != null)
             {
-                if (userName == (string)UserListBox.Items[index])
-                    userName = newUser;
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine("Exception: " + ex.Message);
-            }
+                if(UserListBox.Items.Contains(oldUser))
+                {
+                    int index = UserListBox.Items.IndexOf(oldUser);
 
-            UserListBox.Items[index] = newUser;
+                    if (userName == oldUser)
+                        userName = newUser;
+
+                    UserListBox.Items[index] = newUser;
+                }
+            }
+            else
+            {
+                UserListBox_Add(newUser);
+            }
         }
         void UserListBox_Remove(int index)
         {
@@ -187,20 +214,20 @@ namespace Client
             {
                 connected = false;
 
-                SendToChat_Bold("Connecting to " + ipAddress + ": " + port + "...");
+                SendToChat("Connecting to " + ipAddress + ": " + port + "...", bold:true);
                 if (client.Connect(ipAddress, port))
                 {
-                    SendToChat_Bold("You have connected to the server.");
+                    SendToChat("You have connected to the server.", bold:true);
                     connected = true;
                 }
                 else
                 {
-                    SendToChat_Bold("Could not connect to the server.");
+                    SendToChat("Could not connect to the server.", bold:true);
                 }
             }
             else
             {
-                SendToChat_Bold("There was an error disconnecting from the server.");
+                SendToChat("There was an error disconnecting from the server.", bold:true);
             }
         }
 
@@ -211,17 +238,22 @@ namespace Client
                 if (client.Disconnect())
                 {
                     connected = false;
-                    SendToChat_Bold("You have disconnected from the server.");
+                    SendToChat("You have disconnected from the server.", bold:true);
                 }
                 else
                 {
-                    SendToChat_Bold("There was an error disconnecting from the server.");
+                    SendToChat("There was an error disconnecting from the server.", bold:true);
                 }
             }
             else
             {
-                SendToChat_Bold("You are not connected to a server.");
+                SendToChat("You are not connected to a server.", bold:true);
             }
+        }
+
+        private void ClientForm_VisibleChanged(object sender, EventArgs e)
+        {
+            client.ConnectPacket(userName);
         }
     }
 }

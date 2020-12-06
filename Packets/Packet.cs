@@ -10,7 +10,9 @@ namespace Packets
     {
         ChatMessage,
         PrivateMessage,
-        ClientName
+        ClientName,
+        NewName,
+        Connect
     }
 
     [Serializable]
@@ -32,6 +34,29 @@ namespace Packets
         {
             message = _message;
             packetType = PacketType.ChatMessage;
+        }
+    }
+    [Serializable]
+    public class NewNamePacket : Packet
+    {
+        public string oldName, newName;
+
+        public NewNamePacket(string _oldName, string _newName)
+        {
+            oldName = _oldName;
+            newName = _newName;
+            packetType = PacketType.NewName;
+        }
+    }
+    [Serializable]
+    public class ConnectPacket : Packet
+    {
+        public string userName;
+
+        public ConnectPacket(string _userName)
+        {
+            userName = _userName;
+            packetType = PacketType.Connect;
         }
     }
 }

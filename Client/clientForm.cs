@@ -15,7 +15,7 @@ namespace Client
     {
         private Client client;
 
-        public string userName = "User";//new Random().Next(9999).ToString();
+        public string userName = "User";
 
         private string ipAddress = "127.0.0.1";
         private int port = 4444;
@@ -41,7 +41,6 @@ namespace Client
             }
             else
             {
-                MessageWindow.SelectionStart = MessageWindow.Text.Length;
                 if (message.Contains("@" + userName))
                 {
                     SendToChat(message, bold:true);
@@ -50,21 +49,24 @@ namespace Client
                 {
                     SendToChat(message);
                 }
-                MessageWindow.ScrollToCaret();
             }
         }
 
         void SendToChat(string message, bool bold = false)
         {
-            if(bold)
+            if (bold)
             {
+                MessageWindow.Text += Environment.NewLine;
                 MessageWindow.SelectionStart = MessageWindow.Text.Length;
-                MessageWindow.SelectedRtf = @"{\rtf1\ansi \b " + message + Environment.NewLine + @" \b}";
+                MessageWindow.SelectedRtf = @"{\rtf1\ansi \b " + message + @" \b}";
             }
             else
             {
-                MessageWindow.Text += message + Environment.NewLine;
+                MessageWindow.Text += Environment.NewLine + message;
             }
+
+            MessageWindow.SelectionStart = MessageWindow.Text.Length;
+            MessageWindow.ScrollToCaret();
         }
 
         void SubmitButton_Click(object sender, EventArgs e)

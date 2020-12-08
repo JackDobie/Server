@@ -19,6 +19,7 @@ namespace Server
         private ConcurrentDictionary<int, Client> clients;
 
         private ConcurrentDictionary<int, string> userList;
+        private int userCount = 1;
 
         public Server(string ipAdress, int port)
         {
@@ -77,7 +78,6 @@ namespace Server
                             break;
                         case PacketType.NewName:
                             NewNamePacket namePacket = (NewNamePacket)receivedMessage;
-
                             try
                             {
                                 int key = userList.First(x => x.Value == namePacket.oldName).Key;
@@ -88,21 +88,31 @@ namespace Server
                                 Console.WriteLine("Exception: " + e);
                                 break;
                             }
-
+                            UserListPacket listPacket = new UserListPacket(userList);
+                            foreach (KeyValuePair<int, Client> cli in clients)
+                            {
+                                cli.Value.Send(listPacket);
+                            }
+                            break;
+                        case PacketType.Connect:
+                            ConnectPacket conPacket = (ConnectPacket)receivedMessage;
+                            userList.TryAdd(userCount++, conPacket.userName);
                             UserListPacket userListPacket = new UserListPacket(userList);
-
                             foreach (KeyValuePair<int, Client> cli in clients)
                             {
                                 cli.Value.Send(userListPacket);
                             }
                             break;
-                        case PacketType.Connect:
-                            ConnectPacket conPacket = (ConnectPacket)receivedMessage;
-                            userList.TryAdd(userList.Count, conPacket.userName);
-                            UserListPacket listPacket = new UserListPacket(userList);
+                        case PacketType.Disconnect:
+                            DisconnectPacket disconPacket = (DisconnectPacket)receivedMessage;
+
+                            int removeKey = userList.First(x => x.Value == disconPacket.userName).Key;
+                            userList.TryRemove(removeKey, out _);
+
+                            UserListPacket uListPacket = new UserListPacket(userList);
                             foreach (KeyValuePair<int, Client> cli in clients)
                             {
-                                cli.Value.Send(listPacket);
+                                cli.Value.Send(uListPacket);
                             }
                             break;
                         default:

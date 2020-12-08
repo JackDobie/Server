@@ -14,6 +14,7 @@ namespace Packets
         ClientName,
         NewName,
         Connect,
+        Disconnect,
         UserListPacket
     }
 
@@ -59,6 +60,17 @@ namespace Packets
         {
             userName = _userName;
             packetType = PacketType.Connect;
+        }
+    }
+    [Serializable]
+    public class DisconnectPacket : Packet
+    {
+        public string userName;
+
+        public DisconnectPacket(string _userName)
+        {
+            userName = _userName;
+            packetType = PacketType.Disconnect;
         }
     }
     [Serializable]

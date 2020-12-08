@@ -22,7 +22,7 @@ namespace Client
 
         private ClientForm clientForm;
 
-        private bool connected = false;
+        internal bool connected = false;
 
         public Client()
         {
@@ -43,6 +43,7 @@ namespace Client
             }
             catch(Exception e)
             {
+                connected = false;
                 Console.Write("Exception: " + e.Message);
                 return false;
             }
@@ -52,16 +53,17 @@ namespace Client
         {
             try
             {
+                connected = false;
                 reader.Close();
                 writer.Close();
                 stream.Close();
                 tcpClient.Close();
                 Console.WriteLine("Disconnected.");
-                connected = false;
                 return true;
             }
             catch(Exception ex)
             {
+                connected = true;
                 Console.WriteLine("Exception: " + ex.Message);
                 return false;
             }
@@ -79,27 +81,30 @@ namespace Client
         private void ProcessServerResponse()
         {
             int byteNum;
-            while ((byteNum = reader.ReadInt32()) != 0)
+            while (connected)
             {
-                if (!connected)
-                    break;
-
-                byte[] buffer = reader.ReadBytes(byteNum);
-                MemoryStream memstream = new MemoryStream(buffer);
-
-                Packet packet = formatter.Deserialize(memstream) as Packet;
-
-                switch (packet.packetType)
+                if ((byteNum = reader.ReadInt32()) != 0)
                 {
-                    case PacketType.ChatMessage:
-                        ChatMessagePacket chatPacket = (ChatMessagePacket)packet;
-                        clientForm.UpdateChatWindow(chatPacket.message);
-                        break;
-                    case PacketType.UserListPacket:
-                        UserListPacket listPacket = (UserListPacket)packet;
-                        clientForm.UserListBox_Edit(listPacket.userList);
-                        break;
+                    byte[] buffer = reader.ReadBytes(byteNum);
+                    MemoryStream memstream = new MemoryStream(buffer);
+
+                    Packet packet = formatter.Deserialize(memstream) as Packet;
+
+                    switch (packet.packetType)
+                    {
+                        case PacketType.ChatMessage:
+                            ChatMessagePacket chatPacket = (ChatMessagePacket)packet;
+                            clientForm.UpdateChatWindow(chatPacket.message);
+                            break;
+                        case PacketType.UserListPacket:
+                            UserListPacket listPacket = (UserListPacket)packet;
+                            clientForm.UserListBox_Edit(listPacket.userList);
+                            if (!connected) break;
+                            break;
+                    }
                 }
+                else
+                    break;
             }
         }
 
@@ -119,6 +124,14 @@ namespace Client
         {
             ConnectPacket packet = new ConnectPacket(userName);
             SendPacket(packet);
+        }
+
+        public void DisconnectPacket(string userName)
+        {
+            DisconnectPacket packet = new DisconnectPacket(userName);
+            SendPacket(packet);
+            Thread.Sleep(50);
+            Disconnect();
         }
 
         void SendPacket(Packet packet)

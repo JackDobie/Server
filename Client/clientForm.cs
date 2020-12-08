@@ -20,8 +20,6 @@ namespace Client
         private string ipAddress = "127.0.0.1";
         private int port = 4444;
 
-        private bool connected = true;
-
         public ClientForm(Client client1)
         {
             InitializeComponent();
@@ -71,7 +69,7 @@ namespace Client
 
         void SubmitButton_Click(object sender, EventArgs e)
         {
-            if(connected)
+            if(client.connected)
             {
                 if (!string.IsNullOrWhiteSpace(InputField.Text))
                 {
@@ -198,39 +196,44 @@ namespace Client
 
         void ConnectButton_Click(object sender, EventArgs e)
         {
-            if (client.Disconnect())
+            if(!client.connected)
             {
-                connected = false;
-
-                SendToChat("Connecting to " + ipAddress + ": " + port + "...", bold:true);
-                if (client.Connect(ipAddress, port))
+                try
                 {
-                    SendToChat("You have connected to the server.", bold:true);
-                    connected = true;
+                    Console.WriteLine("Connecting to " + ipAddress + ": " + port + "...");
+                    //SendToChat("Connecting to " + ipAddress + ": " + port + "...", bold: true);
+                    if (client.Connect(ipAddress, port))
+                    {
+                        SendToChat("You have connected to the server.", bold: true);
+                        NameTextBox.ReadOnly = false;
+                    }
+                    else
+                    {
+                        //Console.WriteLine("Could not connect to the server.");
+                        SendToChat("Could not connect to the server.", bold: true);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    SendToChat("Could not connect to the server.", bold:true);
+                    SendToChat("There was an error connecting to the server: " + ex.Message, bold: true);
+                    //Console.WriteLine("There was an error connecting to the server: " + ex.Message);
                 }
-            }
-            else
-            {
-                SendToChat("There was an error disconnecting from the server.", bold:true);
             }
         }
 
         void DisconnectButton_Click(object sender, EventArgs e)
         {
-            if(connected)
+            if(client.connected)
             {
-                if (client.Disconnect())
+                try
                 {
-                    connected = false;
-                    SendToChat("You have disconnected from the server.", bold:true);
+                    client.DisconnectPacket(userName);
+                    UserListBox.Items.Clear();
+                    NameTextBox.ReadOnly = true;
                 }
-                else
+                catch(Exception ex)
                 {
-                    SendToChat("There was an error disconnecting from the server.", bold:true);
+                    Console.WriteLine("Exception: " + ex.Message);
                 }
             }
             else

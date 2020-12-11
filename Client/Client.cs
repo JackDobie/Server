@@ -22,6 +22,8 @@ namespace Client
 
         private ClientForm clientForm;
 
+        public Dictionary<string, PrivateMessageForm> openPrivateMessages = new Dictionary<string, PrivateMessageForm>();
+
         internal bool connected = false;
 
         public Client()
@@ -59,6 +61,7 @@ namespace Client
                 stream.Close();
                 tcpClient.Close();
                 Console.WriteLine("Disconnected.");
+                clientForm.UserListBox_Remove(all: true);
                 return true;
             }
             catch(Exception ex)
@@ -99,7 +102,6 @@ namespace Client
                         case PacketType.UserListPacket:
                             UserListPacket listPacket = (UserListPacket)packet;
                             clientForm.UserListBox_Edit(listPacket.userList);
-                            if (!connected) break;
                             break;
                     }
                 }

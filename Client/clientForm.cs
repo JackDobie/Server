@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -20,10 +21,10 @@ namespace Client
         private string ipAddress = "127.0.0.1";
         private int port = 4444;
 
-        public ClientForm(Client client1)
+        public ClientForm(Client _client)
         {
             InitializeComponent();
-            client = client1;
+            client = _client;
 
             NameTextBox.Text = userName;
         }
@@ -123,7 +124,7 @@ namespace Client
             int index = this.UserListBox.IndexFromPoint(e.Location);
             if (index != ListBox.NoMatches)
             {
-                InputField.Text += ("@" + UserListBox.Items[index].ToString());
+                OpenPrivateMessage(UserListBox.Items[index].ToString());
             }
         }
         public void UserListBox_Add(string user)
@@ -153,11 +154,29 @@ namespace Client
             {
                 UserListBox.Items.Clear();
                 UserListBox.Items.AddRange(list.Values.ToArray());
+
+                if(userName == "User")
+                {
+                    int id = 1;
+                    string name = "User";
+                    while (UserListBox.Items.Contains(name))
+                    {
+                        name = "User" + id++;
+                    }
+                    client.EditName(userName, name);
+                    userName = name;
+                    NameTextBox.Text = name;
+                }
             }
         }
-        void UserListBox_Remove(int index)
+        public void UserListBox_Remove(int index = 0, bool all = false)
         {
-            UserListBox.Items.RemoveAt(index);
+            if(all)
+            {
+                UserListBox.Items.Clear();
+            }
+            else
+                UserListBox.Items.RemoveAt(index);
         }
 
         void IPAddressBox_GotFocus(object sender, EventArgs e)
@@ -201,16 +220,13 @@ namespace Client
                 try
                 {
                     Console.WriteLine("Connecting to " + ipAddress + ": " + port + "...");
-                    //SendToChat("Connecting to " + ipAddress + ": " + port + "...", bold: true);
+
                     if (client.Connect(ipAddress, port))
                     {
+                        Thread.Sleep(50);
+                        client.ConnectPacket(userName);
                         SendToChat("You have connected to the server.", bold: true);
                         NameTextBox.ReadOnly = false;
-                    }
-                    else
-                    {
-                        //Console.WriteLine("Could not connect to the server.");
-                        SendToChat("Could not connect to the server.", bold: true);
                     }
                 }
                 catch (Exception ex)
@@ -228,7 +244,6 @@ namespace Client
                 try
                 {
                     client.DisconnectPacket(userName);
-                    UserListBox.Items.Clear();
                     NameTextBox.ReadOnly = true;
                 }
                 catch(Exception ex)
@@ -245,6 +260,21 @@ namespace Client
         private void ClientForm_VisibleChanged(object sender, EventArgs e)
         {
             client.ConnectPacket(userName);
+        }
+
+        public void OpenPrivateMessage(string user)
+        {
+            if(client.openPrivateMessages.ContainsKey(user))
+            {
+                client.openPrivateMessages.TryGetValue(user, out PrivateMessageForm form);
+                form.Focus();
+            }
+            else
+            {
+                PrivateMessageForm form = new PrivateMessageForm(client, userName, user);
+                client.openPrivateMessages.Add(user, form);
+                form.Show();
+            }
         }
     }
 }

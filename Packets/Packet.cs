@@ -11,7 +11,6 @@ namespace Packets
     {
         ChatMessage,
         PrivateMessage,
-        ClientName,
         NewName,
         Connect,
         Disconnect,

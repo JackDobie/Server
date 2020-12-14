@@ -16,13 +16,36 @@ namespace Client
         private string userName;
         private string otherUser;
 
-        public PrivateMessageForm(Client _client, string _userName, string _otherUser)
+        public PrivateMessageForm(Client _client, string _userName, string _otherUser, string message)
         {
             InitializeComponent();
             client = _client;
             userName = _userName;
             otherUser = _otherUser;
-            Name = "Private messages with " + _otherUser;
+            this.Name = "Private messages with " + otherUser;
+            this.MessageWindow.Text = "Private messages with " + otherUser;
+
+            if(message != null)
+            {
+                UpdateChatWindow((otherUser + ": " + message));
+            }
+        }
+
+        public void UpdateChatWindow(string message)
+        {
+            if (MessageWindow.InvokeRequired)
+            {
+                Invoke(new Action(() =>
+                {
+                    UpdateChatWindow(message);
+                }));
+            }
+            else
+            {
+                MessageWindow.Text += Environment.NewLine + message;
+                MessageWindow.SelectionStart = MessageWindow.Text.Length;
+                MessageWindow.ScrollToCaret();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)

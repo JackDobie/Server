@@ -19,6 +19,7 @@ namespace Server
         private BinaryWriter writer;
         private object readLock;
         private object writeLock;
+        public string name;
 
         public Client(Socket clientSocket)
         {

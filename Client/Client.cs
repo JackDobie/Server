@@ -34,13 +34,13 @@ namespace Client
         {
             try
             {
+                connected = true;
                 tcpClient = new TcpClient(ipAddress, port);
                 stream = tcpClient.GetStream();
                 formatter = new BinaryFormatter();
                 reader = new BinaryReader(stream, Encoding.UTF8);
                 writer = new BinaryWriter(stream, Encoding.UTF8);
                 Console.WriteLine("Connected to " + ipAddress + ": " + port);
-                connected = true;
                 return true;
             }
             catch(Exception e)
@@ -75,38 +75,49 @@ namespace Client
         public void Run()
         {
             clientForm = new ClientForm(this);
+            ProcessResponse();
+            clientForm.ShowDialog();
+        }
+
+        public void ProcessResponse()
+        {
             Thread thread = new Thread(ProcessServerResponse);
             thread.Start();
-
-            clientForm.ShowDialog();
         }
 
         private void ProcessServerResponse()
         {
             int byteNum;
-            while (connected)
+            try
             {
-                if ((byteNum = reader.ReadInt32()) != 0)
+                while (connected)
                 {
-                    byte[] buffer = reader.ReadBytes(byteNum);
-                    MemoryStream memstream = new MemoryStream(buffer);
-
-                    Packet packet = formatter.Deserialize(memstream) as Packet;
-
-                    switch (packet.packetType)
+                    if ((byteNum = reader.ReadInt32()) != 0)
                     {
-                        case PacketType.ChatMessage:
-                            ChatMessagePacket chatPacket = (ChatMessagePacket)packet;
-                            clientForm.UpdateChatWindow(chatPacket.message);
-                            break;
-                        case PacketType.UserListPacket:
-                            UserListPacket listPacket = (UserListPacket)packet;
-                            clientForm.UserListBox_Edit(listPacket.userList);
-                            break;
+                        byte[] buffer = reader.ReadBytes(byteNum);
+                        MemoryStream memstream = new MemoryStream(buffer);
+
+                        Packet packet = formatter.Deserialize(memstream) as Packet;
+
+                        switch (packet.packetType)
+                        {
+                            case PacketType.ChatMessage:
+                                ChatMessagePacket chatPacket = (ChatMessagePacket)packet;
+                                clientForm.UpdateChatWindow(chatPacket.message);
+                                break;
+                            case PacketType.UserListPacket:
+                                UserListPacket listPacket = (UserListPacket)packet;
+                                clientForm.UserListBox_Edit(listPacket.userList);
+                                break;
+                        }
                     }
+                    else
+                        break;
                 }
-                else
-                    break;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
             }
         }
 
@@ -116,6 +127,11 @@ namespace Client
             clientForm.UpdateChatWindow(msg);
             ChatMessagePacket packet = new ChatMessagePacket(msg);
             SendPacket(packet);
+        }
+        public void SendPrivateMessage(string sender, string receiver, string message)
+        {
+            string msg = (sender + ": " + message);
+
         }
         public void EditName(string oldName, string newName)
         {

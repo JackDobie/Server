@@ -18,7 +18,7 @@ namespace Server
 
         private ConcurrentDictionary<int, Client> clients;
 
-        private ConcurrentDictionary<int, string> userList;
+        //private ConcurrentDictionary<int, string> userList;
         private int userCount = 1;
 
         public Server(string ipAdress, int port)
@@ -26,7 +26,7 @@ namespace Server
             IPAddress IP = IPAddress.Parse(ipAdress);
             tcpListener = new TcpListener(IP, port);
             clients = new ConcurrentDictionary<int, Client>();
-            userList = new ConcurrentDictionary<int, string>();
+            //userList = new ConcurrentDictionary<int, string>();
         }
 
         public void Start()
@@ -80,58 +80,62 @@ namespace Server
                             NewNamePacket namePacket = (NewNamePacket)receivedMessage;
                             try
                             {
-                                int key = userList.First(x => x.Value == namePacket.oldName).Key;
-                                userList.TryUpdate(key, namePacket.newName, namePacket.oldName);
+                                clients[index].name = namePacket.newName;
+                                //int key = userList.First(x => x.Value == namePacket.oldName).Key;
+                                //userList.TryUpdate(key, namePacket.newName, namePacket.oldName);
                             }
                             catch(Exception e)
                             {
                                 Console.WriteLine("Exception: " + e);
                                 break;
                             }
-                            UserListPacket listPacket = new UserListPacket(userList);
-                            foreach (KeyValuePair<int, Client> cli in clients)
-                            {
-                                cli.Value.Send(listPacket);
-                            }
+                            SendClientList();
                             break;
                         case PacketType.Connect:
-                            ConnectPacket conPacket = (ConnectPacket)receivedMessage;
-                            userList.TryAdd(userCount++, conPacket.userName);
-                            UserListPacket userListPacket = new UserListPacket(userList);
-                            foreach (KeyValuePair<int, Client> cli in clients)
-                            {
-                                cli.Value.Send(userListPacket);
-                            }
+                            ConnectPacket connectPacket = (ConnectPacket)receivedMessage;
+                            clients[index].name = connectPacket.userName;
+                            SendClientList();
                             break;
                         case PacketType.Disconnect:
-                            DisconnectPacket disconPacket = (DisconnectPacket)receivedMessage;
-
-                            int removeKey = userList.First(x => x.Value == disconPacket.userName).Key;
-                            userList.TryRemove(removeKey, out _);
-
-                            UserListPacket uListPacket = new UserListPacket(userList);
-                            foreach (KeyValuePair<int, Client> cli in clients)
-                            {
-                                cli.Value.Send(uListPacket);
-                            }
                             break;
                         default:
                             Console.WriteLine("Received packet of type " + receivedMessage.packetType);
                             break;
                     }
                 }
-                clients[index].Close();
-                clients.TryRemove(index, out Client c);
             }
             catch(Exception e)
             {
                 Console.WriteLine("Exception: " + e.Message);
+            }
+            finally
+            {
+                clients[index].Close();
+                clients.TryRemove(index, out Client c);
+                SendClientList();
             }
         }
 
         private void GetEnumerator()
         {
             throw new NotImplementedException();
+        }
+
+        void SendClientList()
+        {
+            List<string> userList = new List<string>();
+
+            foreach (KeyValuePair<int, Client> cli in clients)
+            {
+                userList.Add(cli.Value.name);
+            }
+
+            UserListPacket userListPacket = new UserListPacket(userList);
+
+            foreach (KeyValuePair<int, Client> cli in clients)
+            {
+                cli.Value.Send(userListPacket);
+            }
         }
     }
 }

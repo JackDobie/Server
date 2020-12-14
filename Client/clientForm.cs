@@ -124,7 +124,9 @@ namespace Client
             int index = this.UserListBox.IndexFromPoint(e.Location);
             if (index != ListBox.NoMatches)
             {
-                OpenPrivateMessage(UserListBox.Items[index].ToString());
+                string name = UserListBox.Items[index].ToString();
+                if(name != userName)
+                    OpenPrivateMessage(name, null);
             }
         }
         public void UserListBox_Add(string user)
@@ -141,7 +143,7 @@ namespace Client
                 UserListBox.Items.Add(user);
             }
         }
-        public void UserListBox_Edit(ConcurrentDictionary<int, string> list)
+        public void UserListBox_Edit(List<string> list)
         {
             if (UserListBox.InvokeRequired)
             {
@@ -153,7 +155,7 @@ namespace Client
             else
             {
                 UserListBox.Items.Clear();
-                UserListBox.Items.AddRange(list.Values.ToArray());
+                UserListBox.Items.AddRange(list.ToArray());
 
                 if(userName == "User")
                 {
@@ -224,6 +226,7 @@ namespace Client
                     if (client.Connect(ipAddress, port))
                     {
                         Thread.Sleep(50);
+                        client.ProcessResponse();
                         client.ConnectPacket(userName);
                         SendToChat("You have connected to the server.", bold: true);
                         NameTextBox.ReadOnly = false;
@@ -262,7 +265,7 @@ namespace Client
             client.ConnectPacket(userName);
         }
 
-        public void OpenPrivateMessage(string user)
+        public void OpenPrivateMessage(string user, string message)
         {
             if(client.openPrivateMessages.ContainsKey(user))
             {
@@ -271,7 +274,7 @@ namespace Client
             }
             else
             {
-                PrivateMessageForm form = new PrivateMessageForm(client, userName, user);
+                PrivateMessageForm form = new PrivateMessageForm(client, userName, user, message);
                 client.openPrivateMessages.Add(user, form);
                 form.Show();
             }

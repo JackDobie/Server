@@ -38,6 +38,7 @@
             this.MessageWindow.Location = new System.Drawing.Point(12, 12);
             this.MessageWindow.Multiline = true;
             this.MessageWindow.Name = "MessageWindow";
+            this.MessageWindow.ReadOnly = true;
             this.MessageWindow.Size = new System.Drawing.Size(251, 362);
             this.MessageWindow.TabIndex = 0;
             // 
@@ -61,7 +62,6 @@
             // 
             // PrivateMessageForm
             // 
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(PMForm_FormClose);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(275, 450);
@@ -70,6 +70,7 @@
             this.Controls.Add(this.MessageWindow);
             this.Name = "PrivateMessageForm";
             this.Text = "PrivateMessageForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PMForm_FormClose);
             this.ResumeLayout(false);
             this.PerformLayout();
 

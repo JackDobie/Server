@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
-using System.IO;
 using System.Collections.Concurrent;
 using Packets;
 
@@ -97,6 +93,16 @@ namespace Server
                             SendClientList();
                             break;
                         case PacketType.Disconnect:
+                            break;
+                        case PacketType.PrivateMessage:
+                            PrivateMessagePacket msgPacket = (PrivateMessagePacket)receivedMessage;
+                            foreach (KeyValuePair<int, Client> cli in clients)
+                            {
+                                if(cli.Value.name == msgPacket.receiver)
+                                {
+                                    cli.Value.Send(msgPacket);
+                                }
+                            }
                             break;
                         default:
                             Console.WriteLine("Received packet of type " + receivedMessage.packetType);

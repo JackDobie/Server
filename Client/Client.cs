@@ -2,13 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Client
 {
@@ -109,6 +106,10 @@ namespace Client
                                 UserListPacket listPacket = (UserListPacket)packet;
                                 clientForm.UserListBox_Edit(listPacket.userList);
                                 break;
+                            case PacketType.PrivateMessage:
+                                PrivateMessagePacket msgPacket = (PrivateMessagePacket)packet;
+                                clientForm.OpenPrivateMessage(msgPacket.sender, msgPacket.message);
+                                break;
                         }
                     }
                     else
@@ -130,8 +131,8 @@ namespace Client
         }
         public void SendPrivateMessage(string sender, string receiver, string message)
         {
-            string msg = (sender + ": " + message);
-
+            PrivateMessagePacket packet = new PrivateMessagePacket(sender, receiver, message);
+            SendPacket(packet);
         }
         public void EditName(string oldName, string newName)
         {

@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Client
@@ -267,16 +260,28 @@ namespace Client
 
         public void OpenPrivateMessage(string user, string message)
         {
-            if(client.openPrivateMessages.ContainsKey(user))
+            if (MessageWindow.InvokeRequired)
             {
-                client.openPrivateMessages.TryGetValue(user, out PrivateMessageForm form);
-                form.Focus();
+                Invoke(new Action(() =>
+                {
+                    OpenPrivateMessage(user, message);
+                }));
             }
             else
             {
-                PrivateMessageForm form = new PrivateMessageForm(client, userName, user, message);
-                client.openPrivateMessages.Add(user, form);
-                form.Show();
+                if (client.openPrivateMessages.ContainsKey(user))
+                {
+                    client.openPrivateMessages.TryGetValue(user, out PrivateMessageForm form);
+                    form.Focus();
+                    if (message != null) form.UpdateChatWindow(user + ": " + message);
+                }
+                else
+                {
+                    PrivateMessageForm form = new PrivateMessageForm(client, userName, user, message);
+                    client.openPrivateMessages.Add(user, form);
+                    form.Show();
+                    form.Focus();
+                }
             }
         }
     }

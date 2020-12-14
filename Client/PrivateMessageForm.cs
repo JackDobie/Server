@@ -22,10 +22,10 @@ namespace Client
             client = _client;
             userName = _userName;
             otherUser = _otherUser;
-            this.Name = "Private messages with " + otherUser;
-            this.MessageWindow.Text = "Private messages with " + otherUser;
+            this.Text = "Private messages with " + otherUser;
+            UpdateChatWindow("Private messages with " + otherUser + Environment.NewLine);
 
-            if(message != null)
+            if (message != null)
             {
                 UpdateChatWindow((otherUser + ": " + message));
             }
@@ -42,20 +42,33 @@ namespace Client
             }
             else
             {
-                MessageWindow.Text += Environment.NewLine + message;
+                MessageWindow.Text += message + Environment.NewLine;
                 MessageWindow.SelectionStart = MessageWindow.Text.Length;
                 MessageWindow.ScrollToCaret();
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void SubmitButton_Click(object sender, EventArgs e)
         {
+            if (!string.IsNullOrWhiteSpace(InputField.Text))
+            {
+                client.SendPrivateMessage(userName, otherUser, InputField.Text.Trim());
+                UpdateChatWindow(userName + ": " + InputField.Text.Trim());
+            }
 
+            InputField.Text = "";
         }
 
         private void PMForm_FormClose(object sender, FormClosingEventArgs e)
         {
-            client.openPrivateMessages.Remove(userName);
+            if(client.openPrivateMessages.ContainsKey(userName))
+            {
+                client.openPrivateMessages.Remove(userName);
+            }
+            else if (client.openPrivateMessages.ContainsKey(otherUser))
+            {
+                client.openPrivateMessages.Remove(otherUser);
+            }
         }
     }
 }

@@ -39,6 +39,21 @@ namespace Packets
         }
     }
     [Serializable]
+    public class PrivateMessagePacket : Packet
+    {
+        public string sender;
+        public string receiver;
+        public string message;
+
+        public PrivateMessagePacket(string _sender, string _receiver, string _message)
+        {
+            sender = _sender;
+            receiver = _receiver;
+            message = _message;
+            packetType = PacketType.PrivateMessage;
+        }
+    }
+    [Serializable]
     public class NewNamePacket : Packet
     {
         public string oldName, newName;

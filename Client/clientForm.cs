@@ -75,15 +75,18 @@ namespace Client
 
         void InputField_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Enter)
             {
                 SubmitButton_Click(null, null);
+                e.SuppressKeyPress = true;
             }
+            else
+                e.SuppressKeyPress = false;
         }
 
         void NameTextBox_GotFocus(object sender, EventArgs e)
         {
-            if(NameTextBox.Text == "User")
+            if(NameTextBox.Text == userName)
             {
                 NameTextBox.Text = "";
             }

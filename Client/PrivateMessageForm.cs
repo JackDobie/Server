@@ -22,7 +22,7 @@ namespace Client
             client = _client;
             userName = _userName;
             otherUser = _otherUser;
-            this.Text = "Private messages with " + otherUser;
+            this.Text = otherUser;
             UpdateChatWindow("Private messages with " + otherUser + Environment.NewLine);
 
             if (message != null)
@@ -57,6 +57,17 @@ namespace Client
             }
 
             InputField.Text = "";
+        }
+
+        void InputField_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SubmitButton_Click(null, null);
+                e.SuppressKeyPress = true;
+            }
+            else
+                e.SuppressKeyPress = false;
         }
 
         private void PMForm_FormClose(object sender, FormClosingEventArgs e)

@@ -121,6 +121,7 @@
     <value>Welcome to the chat.
 Type messages in the box below and press submit or enter to send.
 You can change your user name in the box above the list of users. It will be applied once you click out of the box or press enter.
+Double click a user other than yourself to send a private message.
 </value>
   </data>
 </root>

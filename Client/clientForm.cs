@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -165,6 +166,24 @@ namespace Client
                     userName = name;
                     NameTextBox.Text = name;
                 }
+
+                List<string> disconnectedPMs = new List<string>();
+                disconnectedPMs = client.openPrivateMessages.Keys.Where(x => !UserListBox.Items.Contains(x)).ToList();
+                foreach (string str in disconnectedPMs)
+                {
+                    //close private message
+                    client.openPrivateMessages.TryGetValue(str, out PrivateMessageForm messageForm);
+                    messageForm.DisableChat();
+                }
+
+                List<string> connectedPMs = new List<string>();
+                connectedPMs = client.openPrivateMessages.Keys.Where(x => UserListBox.Items.Contains(x)).ToList();
+                foreach (string str in connectedPMs)
+                {
+                    //close private message
+                    client.openPrivateMessages.TryGetValue(str, out PrivateMessageForm messageForm);
+                    messageForm.EnableChat();
+                }
             }
         }
         public void UserListBox_Remove(int index = 0, bool all = false)
@@ -244,6 +263,10 @@ namespace Client
                 {
                     client.DisconnectPacket(userName);
                     NameTextBox.ReadOnly = true;
+                    foreach (PrivateMessageForm form in client.openPrivateMessages.Values)
+                    {
+                        form.Close();
+                    }
                 }
                 catch(Exception ex)
                 {

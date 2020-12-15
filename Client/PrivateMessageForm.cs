@@ -70,6 +70,17 @@ namespace Client
                 e.SuppressKeyPress = false;
         }
 
+        public void DisableChat()
+        {
+            InputField.ReadOnly = true;
+            UpdateChatWindow(otherUser + " has disconnected from the server.");
+        }
+        public void EnableChat()
+        {
+            UpdateChatWindow(otherUser + " has connected to the server.");
+            InputField.ReadOnly = false;
+        }
+
         private void PMForm_FormClose(object sender, FormClosingEventArgs e)
         {
             if(client.openPrivateMessages.ContainsKey(userName))

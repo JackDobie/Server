@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Server
 {
@@ -13,7 +14,8 @@ namespace Server
         static void Main(string[] args)
         {
             Server server = new Server("127.0.0.1", 4444);
-            server.Start();
+            new Thread(server.Start).Start();
+            //server.Start();
         }
     }
 }

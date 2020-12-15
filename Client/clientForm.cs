@@ -247,6 +247,11 @@ namespace Client
                         client.ConnectPacket(userName);
                         SendToChat("You have connected to the server.", bold: true);
                         NameTextBox.ReadOnly = false;
+                        InputField.ReadOnly = false;
+                    }
+                    else
+                    {
+                        SendToChat("There was an error connecting to the server.", bold: true);
                     }
                 }
                 catch (Exception ex)
@@ -283,7 +288,15 @@ namespace Client
 
         private void ClientForm_VisibleChanged(object sender, EventArgs e)
         {
-            client.ConnectPacket(userName);
+            if(client.connected)
+            {
+                client.ConnectPacket(userName);
+            }
+            else
+            {
+                InputField.ReadOnly = true;
+                NameTextBox.ReadOnly = true;
+            }
         }
 
         public void OpenPrivateMessage(string user, string message)

@@ -5,51 +5,75 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections.Concurrent;
 using Packets;
+using System.Windows.Forms;
 
 namespace Server
 {
-    class Server
+    public class Server
     {
         private TcpListener tcpListener;
 
-        private ConcurrentDictionary<int, Client> clients;
+        private ConcurrentDictionary<int, Client> clients = new ConcurrentDictionary<int, Client>();
 
-        //private ConcurrentDictionary<int, string> userList;
-        private int userCount = 1;
+        private bool running = true;
 
-        public Server(string ipAdress, int port)
+        public Server(string ipAddress, int port)
         {
-            IPAddress IP = IPAddress.Parse(ipAdress);
+            IPAddress IP = IPAddress.Parse(ipAddress);
             tcpListener = new TcpListener(IP, port);
-            clients = new ConcurrentDictionary<int, Client>();
-            //userList = new ConcurrentDictionary<int, string>();
+            //ServerForm form = new ServerForm(this);
+            //Application.Run(form);
+            new ServerForm(this).ShowDialog();
+            //new Thread(() => new ServerForm(this).ShowDialog()).Start();
+            //form.Show();
         }
 
         public void Start()
         {
-            tcpListener.Start();
-
-            int index = 0;
-            while(true)
+            try
             {
-                Socket socket = tcpListener.AcceptSocket();
-                Console.WriteLine("Connection made");
+                running = true;
+                tcpListener.Start();
 
-                index++;
+                int index = 0;
+                while (running)
+                {
+                    Socket socket = tcpListener.AcceptSocket();
+                    Console.WriteLine("Connection made");
 
-                Client client = new Client(socket);
-                clients.TryAdd(index, client);
+                    index++;
 
-                Thread thread = new Thread(() => { ClientMethod(index); });
-                thread.Start();
+                    Client client = new Client(socket);
+                    clients.TryAdd(index, client);
+
+                    Thread thread = new Thread(() => { ClientMethod(index); });
+                    thread.Start();
+                }
             }
-            //Socket socket = tcpListener.AcceptSocket();
-            //ClientMethod(socket);
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         public void Stop()
         {
             tcpListener.Stop();
+            running = false;
+        }
+
+        public void ChangeIP(string ipAddress, int port)
+        {
+            if (IPAddress.TryParse(ipAddress, out IPAddress IP))
+            {
+                Stop();
+                tcpListener = new TcpListener(IP, port);
+                //Start();
+                new Thread(Start).Start();
+                Console.WriteLine("Set tcpListener to " + IP + ":" + port);
+            }
+            else
+                Console.WriteLine("IP could not be parsed.");
         }
 
         private void ClientMethod(int index)

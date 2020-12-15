@@ -27,6 +27,8 @@ namespace Client
 
         public Client()
         {
+            clientForm = new ClientForm(this);
+            clientForm.ShowDialog();
         }
 
         public bool Connect(string ipAddress, int port)
@@ -73,9 +75,7 @@ namespace Client
 
         public void Run()
         {
-            clientForm = new ClientForm(this);
             ProcessResponse();
-            clientForm.ShowDialog();
         }
 
         public void ProcessResponse()

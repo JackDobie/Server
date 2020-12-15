@@ -38,6 +38,7 @@
             this.PortBox = new System.Windows.Forms.TextBox();
             this.ConnectButton = new System.Windows.Forms.Button();
             this.DisconnectButton = new System.Windows.Forms.Button();
+            this.UserIDBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // SubmitButton
@@ -63,7 +64,7 @@
             // 
             this.NameTextBox.Location = new System.Drawing.Point(637, 120);
             this.NameTextBox.Name = "NameTextBox";
-            this.NameTextBox.Size = new System.Drawing.Size(151, 20);
+            this.NameTextBox.Size = new System.Drawing.Size(109, 20);
             this.NameTextBox.TabIndex = 3;
             this.NameTextBox.Text = "User";
             this.NameTextBox.GotFocus += new System.EventHandler(this.NameTextBox_GotFocus);
@@ -128,11 +129,22 @@
             this.DisconnectButton.UseVisualStyleBackColor = true;
             this.DisconnectButton.Click += new System.EventHandler(this.DisconnectButton_Click);
             // 
+            // UserIDBox
+            // 
+            this.UserIDBox.Location = new System.Drawing.Point(752, 119);
+            this.UserIDBox.Name = "UserIDBox";
+            this.UserIDBox.ReadOnly = true;
+            this.UserIDBox.Size = new System.Drawing.Size(36, 20);
+            this.UserIDBox.TabIndex = 11;
+            this.UserIDBox.Text = "9999";
+            this.UserIDBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.UserIDBox);
             this.Controls.Add(this.DisconnectButton);
             this.Controls.Add(this.ConnectButton);
             this.Controls.Add(this.PortBox);
@@ -161,5 +173,6 @@
         private System.Windows.Forms.TextBox PortBox;
         private System.Windows.Forms.Button ConnectButton;
         private System.Windows.Forms.Button DisconnectButton;
+        private System.Windows.Forms.TextBox UserIDBox;
     }
 }

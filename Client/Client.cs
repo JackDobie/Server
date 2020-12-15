@@ -23,7 +23,7 @@ namespace Client
 
         internal bool connected = false;
 
-        internal int clientID = new Random().Next(10000);
+        internal int ID = new Random().Next(10000);
 
         public Client()
         {
@@ -143,7 +143,7 @@ namespace Client
         }
         public void ConnectPacket(string userName)
         {
-            ConnectPacket packet = new ConnectPacket(userName, clientID);
+            ConnectPacket packet = new ConnectPacket(userName, ID);
             SendPacket(packet);
         }
 
@@ -151,7 +151,7 @@ namespace Client
         {
             DisconnectPacket packet = new DisconnectPacket(userName);
             SendPacket(packet);
-            Thread.Sleep(50);
+            Thread.Sleep(10);
             Disconnect();
         }
 

@@ -21,6 +21,7 @@ namespace Client
             client = _client;
 
             NameTextBox.Text = userName;
+            UserIDBox.Text = client.ID.ToString();
         }
 
         public void UpdateChatWindow(string message)
@@ -241,7 +242,7 @@ namespace Client
 
                     if (client.Connect(ipAddress, port))
                     {
-                        Thread.Sleep(50);
+                        Thread.Sleep(10);
                         client.ProcessResponse();
                         client.ConnectPacket(userName);
                         SendToChat("You have connected to the server.", bold: true);

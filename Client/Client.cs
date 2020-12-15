@@ -23,6 +23,8 @@ namespace Client
 
         internal bool connected = false;
 
+        internal int clientID = new Random().Next(10000);
+
         public Client()
         {
         }
@@ -134,14 +136,14 @@ namespace Client
             PrivateMessagePacket packet = new PrivateMessagePacket(sender, receiver, message);
             SendPacket(packet);
         }
-        public void EditName(string oldName, string newName)
+        public void EditName(string newName)
         {
-            NewNamePacket packet = new NewNamePacket(oldName, newName);
+            NewNamePacket packet = new NewNamePacket(newName);
             SendPacket(packet);
         }
         public void ConnectPacket(string userName)
         {
-            ConnectPacket packet = new ConnectPacket(userName);
+            ConnectPacket packet = new ConnectPacket(userName, clientID);
             SendPacket(packet);
         }
 

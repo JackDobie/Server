@@ -98,8 +98,8 @@ namespace Client
                 NameTextBox.Text = userName;
             else
             {
-                client.EditName(userName, NameTextBox.Text);
                 userName = NameTextBox.Text;
+                client.EditName(userName);
             }
         }
         void NameTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -110,8 +110,8 @@ namespace Client
                     NameTextBox.Text = userName;
                 else
                 {
-                    client.EditName(userName, NameTextBox.Text);
                     userName = NameTextBox.Text;
+                    client.EditName(userName);
                 }
             }
         }
@@ -154,18 +154,19 @@ namespace Client
                 UserListBox.Items.Clear();
                 UserListBox.Items.AddRange(list.ToArray());
 
-                if(userName == "User")
-                {
-                    int id = 1;
-                    string name = "User";
-                    while (UserListBox.Items.Contains(name))
-                    {
-                        name = "User" + id++;
-                    }
-                    client.EditName(userName, name);
-                    userName = name;
-                    NameTextBox.Text = name;
-                }
+                //List<string> userList = UserListBox.Items.Cast<string>().ToList();
+                //if (userList.Count(x => x == userName) > 1)
+                //{
+                //    int id = 1;
+                //    string name = userName;
+                //    while (userList.Count(x => x == name) > 1)// Contains(name))
+                //    {
+                //        name = userName + id++;
+                //    }
+                //    client.EditName(name);
+                //    userName = name;
+                //    NameTextBox.Text = name;
+                //}
 
                 List<string> disconnectedPMs = new List<string>();
                 disconnectedPMs = client.openPrivateMessages.Keys.Where(x => !UserListBox.Items.Contains(x)).ToList();

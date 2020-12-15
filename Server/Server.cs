@@ -77,8 +77,6 @@ namespace Server
                             try
                             {
                                 clients[index].name = namePacket.newName;
-                                //int key = userList.First(x => x.Value == namePacket.oldName).Key;
-                                //userList.TryUpdate(key, namePacket.newName, namePacket.oldName);
                             }
                             catch(Exception e)
                             {
@@ -90,6 +88,7 @@ namespace Server
                         case PacketType.Connect:
                             ConnectPacket connectPacket = (ConnectPacket)receivedMessage;
                             clients[index].name = connectPacket.userName;
+                            clients[index].ID = connectPacket.ID;
                             SendClientList();
                             break;
                         case PacketType.Disconnect:
@@ -133,7 +132,7 @@ namespace Server
 
             foreach (KeyValuePair<int, Client> cli in clients)
             {
-                userList.Add(cli.Value.name);
+                userList.Add(cli.Value.name + "#" + cli.Value.ID);
             }
 
             UserListPacket userListPacket = new UserListPacket(userList);

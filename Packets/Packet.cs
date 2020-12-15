@@ -56,11 +56,10 @@ namespace Packets
     [Serializable]
     public class NewNamePacket : Packet
     {
-        public string oldName, newName;
+        public string newName;
 
-        public NewNamePacket(string _oldName, string _newName)
+        public NewNamePacket(string _newName)
         {
-            oldName = _oldName;
             newName = _newName;
             packetType = PacketType.NewName;
         }
@@ -69,10 +68,12 @@ namespace Packets
     public class ConnectPacket : Packet
     {
         public string userName;
+        public int ID;
 
-        public ConnectPacket(string _userName)
+        public ConnectPacket(string _userName, int _ID)
         {
             userName = _userName;
+            ID = _ID;
             packetType = PacketType.Connect;
         }
     }

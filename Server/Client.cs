@@ -20,6 +20,7 @@ namespace Server
         private object readLock;
         private object writeLock;
         public string name;
+        public int ID;
 
         public Client(Socket clientSocket)
         {

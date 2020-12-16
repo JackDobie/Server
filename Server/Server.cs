@@ -112,7 +112,6 @@ namespace Server
                         case PacketType.Connect:
                             ConnectPacket connectPacket = (ConnectPacket)receivedMessage;
                             clients[index].name = connectPacket.userName;
-                            clients[index].ID = connectPacket.ID;
                             SendClientList();
                             break;
                         case PacketType.Disconnect:
@@ -156,7 +155,7 @@ namespace Server
 
             foreach (KeyValuePair<int, Client> cli in clients)
             {
-                userList.Add(cli.Value.name + "#" + cli.Value.ID);
+                userList.Add(cli.Value.name);
             }
 
             UserListPacket userListPacket = new UserListPacket(userList);

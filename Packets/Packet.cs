@@ -68,12 +68,10 @@ namespace Packets
     public class ConnectPacket : Packet
     {
         public string userName;
-        public int ID;
 
-        public ConnectPacket(string _userName, int _ID)
+        public ConnectPacket(string _userName)
         {
             userName = _userName;
-            ID = _ID;
             packetType = PacketType.Connect;
         }
     }

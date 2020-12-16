@@ -126,14 +126,14 @@ namespace Client
 
         public void SendMessage(string sender, string message)
         {
-            string msg = (sender + ": " + message);
+            string msg = (sender + "#" + ID + ": " + message);
             clientForm.UpdateChatWindow(msg);
             ChatMessagePacket packet = new ChatMessagePacket(msg);
             SendPacket(packet);
         }
         public void SendPrivateMessage(string sender, string receiver, string message)
         {
-            PrivateMessagePacket packet = new PrivateMessagePacket(sender, receiver, message);
+            PrivateMessagePacket packet = new PrivateMessagePacket(sender + "#" + ID, receiver, message);
             SendPacket(packet);
         }
         public void EditName(string newName)
@@ -143,7 +143,7 @@ namespace Client
         }
         public void ConnectPacket(string userName)
         {
-            ConnectPacket packet = new ConnectPacket(userName, ID);
+            ConnectPacket packet = new ConnectPacket(userName + "#" + ID);
             SendPacket(packet);
         }
 

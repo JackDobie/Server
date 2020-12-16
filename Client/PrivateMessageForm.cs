@@ -53,7 +53,7 @@ namespace Client
             if (!string.IsNullOrWhiteSpace(InputField.Text))
             {
                 client.SendPrivateMessage(userName, otherUser, InputField.Text.Trim());
-                UpdateChatWindow(userName + ": " + InputField.Text.Trim());
+                UpdateChatWindow(userName + "#" + client.ID + ": " + InputField.Text.Trim());
             }
 
             InputField.Text = "";

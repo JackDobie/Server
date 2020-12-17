@@ -12,6 +12,11 @@ namespace Game1
         private SpriteBatch _spriteBatch;
 
         List<Texture2D> hangman = new List<Texture2D>();
+        Rectangle hangmanRectangle = new Rectangle(new Point(74, 74), new Point(453));
+        int hangmanState;
+
+        KeyboardState keyState;
+        KeyboardState oldKeyState;
 
         public Game1()
         {
@@ -20,6 +25,8 @@ namespace Game1
             _graphics.PreferredBackBufferHeight = 800;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            hangmanState = 0;
         }
 
         protected override void Initialize()
@@ -34,6 +41,7 @@ namespace Game1
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            hangman.Add(this.Content.Load<Texture2D>("hangman/square"));
             hangman.Add(this.Content.Load<Texture2D>("hangman/hangman-1"));
             hangman.Add(this.Content.Load<Texture2D>("hangman/hangman-2"));
             hangman.Add(this.Content.Load<Texture2D>("hangman/hangman-3"));
@@ -47,29 +55,69 @@ namespace Game1
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
             // TODO: Add your update logic here
 
+            keyState = Keyboard.GetState();
+
+            if(GetKeyDown(Keys.Space))
+            {
+                AdvanceHangman();
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+
+            oldKeyState = keyState;
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Cyan);
+            GraphicsDevice.Clear(Color.White);
 
             // TODO: Add your drawing code here
             _spriteBatch.Begin();
 
-            foreach (Texture2D tex in hangman)
-            {
-                _spriteBatch.Draw(tex, position: Vector2.Zero, color: Color.White);
-            }
+            _spriteBatch.Draw(hangman[hangmanState], hangmanRectangle, Color.White);
+
+            //foreach (Texture2D tex in hangman)
+            //{
+            //    _spriteBatch.Draw(tex,hangmanRectangle,Color.White);
+            //}
 
             _spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        //returns true the first frame the key is pressed
+        bool GetKeyDown(Keys key)
+        {
+            if (oldKeyState.IsKeyUp(key) && keyState.IsKeyDown(key))
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+
+        //returns true the first frame the key is released
+        bool GetKeyUp(Keys key)
+        {
+            if (oldKeyState.IsKeyDown(key) && keyState.IsKeyUp(key))
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+
+        void AdvanceHangman()
+        {
+            if(hangmanState < 9)
+            {
+                hangmanState++;
+            }
         }
     }
 }

@@ -25,6 +25,8 @@ namespace Game1
         string displayedWord;
         string displayedWord2;
 
+        SpriteFont font;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -60,6 +62,8 @@ namespace Game1
             hangmanTex.Add(this.Content.Load<Texture2D>("hangman/hangman-7"));
             hangmanTex.Add(this.Content.Load<Texture2D>("hangman/hangman-8"));
             hangmanTex.Add(this.Content.Load<Texture2D>("hangman/hangman-9"));
+
+            font = Content.Load<SpriteFont>("Font");
         }
 
         protected override void Update(GameTime gameTime)
@@ -85,6 +89,11 @@ namespace Game1
             _spriteBatch.Begin();
 
             _spriteBatch.Draw(hangmanTex[hangmanState], hangmanRectangle, Color.White);
+
+            if(hangmanState >= 9)
+            {
+                DrawText("You lose!", new Vector2(260.0f, 30.0f), Color.Black, 24.0f);
+            }
 
             _spriteBatch.End();
 
@@ -130,25 +139,40 @@ namespace Game1
             {
                 keysPressed.Add(pressedKey);
 
-                StringBuilder sb = new StringBuilder(displayedWord);
-                for (int i = 0; i < correctWord.Length; i++)
+                if(correctWord.Contains(character))
                 {
-                    if (correctWord.Substring(i, 1) == character.ToString())
+                    StringBuilder sb = new StringBuilder(displayedWord);
+                    for (int i = 0; i < correctWord.Length; i++)
                     {
-                        sb[i] = character;
+                        if (correctWord.Substring(i, 1) == character.ToString())
+                        {
+                            sb[i] = character;
+                        }
                     }
+                    displayedWord = sb.ToString();
                 }
-                displayedWord = sb.ToString();
-
-                //if(correctWord.Contains(character))
-                //{
-                //    StringBuilder sb = new StringBuilder(displayedWord);
-                //    sb[correctWord.IndexOf(character)] = character;
-                //    displayedWord = sb.ToString();
-                //}
-
-                AdvanceHangman();
+                else
+                {
+                    AdvanceHangman();
+                }
             }
+        }
+
+        void DrawText(string text, Vector2 position, Color color)
+        {
+            _spriteBatch.DrawString(font, text, position, color);
+        }
+        void DrawText(string text, Vector2 position, Color color, Vector2 scale)
+        {
+            _spriteBatch.DrawString(font, text, position, color, 0.0f, new Vector2(0), scale, new SpriteEffects(), 0.0f);
+        }
+        void DrawText(string text, Vector2 position, Color color, float size)
+        {
+            _spriteBatch.DrawString(font, text, position, color, 0.0f, new Vector2(0), size / 48, new SpriteEffects(), 0.0f);
+        }
+        void DrawText(string text, Vector2 position, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)
+        {
+            _spriteBatch.DrawString(font, text, position, color, rotation, origin, scale, effects, layerDepth);
         }
     }
 }

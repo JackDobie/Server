@@ -13,9 +13,7 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            Server server = new Server("127.0.0.1", 4444);
-            new Thread(server.Start).Start();
-            //server.Start();
+            new Server("127.0.0.1", 4444).Start();
         }
     }
 }

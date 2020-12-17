@@ -17,21 +17,34 @@ namespace Server
 
         private bool running = true;
 
+        //ServerForm form;// = new ServerForm(this);
+
         public Server(string ipAddress, int port)
         {
             IPAddress IP = IPAddress.Parse(ipAddress);
             tcpListener = new TcpListener(IP, port);
             //ServerForm form = new ServerForm(this);
             //Application.Run(form);
-            new ServerForm(this).ShowDialog();
-            //new Thread(() => new ServerForm(this).ShowDialog()).Start();
+
+            //new ServerForm(this).ShowDialog();
+            //new ServerForm(this, ipAddress, port).ShowDialog();
+
+            new Thread(() => new ServerForm(this, ipAddress, port).ShowDialog()).Start();
             //form.Show();
+
+            //form = new ServerForm(this);
         }
 
         public void Start()
         {
             try
             {
+                //if(!form.Visible)
+                //{
+                //    //form = new ServerForm(this);//.ShowDialog();
+                //    form.ShowDialog();
+                //}
+
                 running = true;
                 tcpListener.Start();
 
@@ -104,7 +117,7 @@ namespace Server
                             }
                             catch(Exception e)
                             {
-                                Console.WriteLine("Exception: " + e);
+                                Console.WriteLine("Exception: " + e.Message);
                                 break;
                             }
                             SendClientList();

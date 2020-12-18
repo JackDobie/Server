@@ -1,14 +1,28 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Packets;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace Game1
 {
     public class Game1 : Game
     {
+        TcpClient tcpClient;
+        NetworkStream stream;
+        BinaryFormatter formatter;
+        BinaryReader reader;
+        BinaryWriter writer;
+        int userID = new Random().Next(10000);
+
+        bool connected = false;
+
         //to load content to project, open cmd and enter mgcb-editor
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -84,11 +98,6 @@ namespace Game1
             _spriteBatch.Begin();
 
             _spriteBatch.Draw(hangmanTex[hangmanState < 9 ? hangmanState : 9], hangmanRectangle, Color.White);
-            //650 35
-            //DrawText(displayedWord, new Vector2(35.0f, 650.0f), Color.Black, 0.0f,);
-            //300 650
-            //DrawText(displayedWord, new Vector2(300.0f, 650.0f), Color.Black, 0.0f, Vector2.Zero, 24, new SpriteEffects(), 0.0f);
-            //DrawTextCentre(displayedWord, new Vector2(300.0f, 650.0f), Color.Black, Vector2.Zero, 24.0f);
 
             DrawTextAligned(displayedWord, new Rectangle(35, 650, 530, 65), TextAlignment.Centre, Color.Black);
 
@@ -178,16 +187,16 @@ namespace Game1
         void DrawTextAligned(string text, Rectangle bounds, TextAlignment align, Color colour)
         {
             Vector2 size = font.MeasureString(text);
-            Vector2 pos = GetRectCentre(bounds);// new Vector2(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
+            Vector2 pos = GetRectCentre(bounds);
             Vector2 origin = size * 0.5f;
 
             switch (align)
             {
                 case TextAlignment.Left:
-                    origin.X += bounds.Width / 2 - size.X / 2;
+                    origin.X += (bounds.Width / 2) - (size.X / 2);
                     break;
                 case TextAlignment.Right:
-                    origin.X -= bounds.Width / 2 - size.X / 2;
+                    origin.X -= (bounds.Width / 2) - (size.X / 2);
                     break;
             }
             _spriteBatch.DrawString(font, text, pos, colour, 0, origin, 1, SpriteEffects.None, 0);
@@ -197,5 +206,90 @@ namespace Game1
         {
             return new Vector2(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
         }
-    }
+
+        bool Connect(string ipAddress, int port)
+        {
+            try
+            {
+                connected = true;
+                tcpClient = new TcpClient(ipAddress, port);
+                stream = tcpClient.GetStream();
+                formatter = new BinaryFormatter();
+                reader = new BinaryReader(stream, Encoding.UTF8);
+                writer = new BinaryWriter(stream, Encoding.UTF8);
+                return true;
+            }
+            catch
+            {
+                connected = false;
+                return false;
+            }
+        }
+        public bool Disconnect()
+        {
+            try
+            {
+                connected = false;
+                reader.Close();
+                writer.Close();
+                stream.Close();
+                tcpClient.Close();
+                return true;
+            }
+            catch
+            {
+                connected = true;
+                return false;
+            }
+        }
+
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            Disconnect();
+
+            base.OnExiting(sender, args);
+        }
+
+        void ProcessServerResponse()
+        {
+            int byteNum;
+            try
+            {
+                while (connected)
+                {
+                    if ((byteNum = reader.ReadInt32()) != 0)
+                    {
+                        byte[] buffer = reader.ReadBytes(byteNum);
+                        MemoryStream memstream = new MemoryStream(buffer);
+
+                        Packet packet = formatter.Deserialize(memstream) as Packet;
+
+                        switch (packet.packetType)
+                        {
+                            case PacketType.GameConnect:
+                                break;
+                            case PacketType.GameDisconnect:
+                                break;
+                            case PacketType.GameSetWord:
+                                GameSetWordPacket wordPacket = (GameSetWordPacket)packet;
+                                correctWord = wordPacket.correctWord;
+                                displayedWord = "";
+                                displayedWord += new string('_', correctWord.Length);
+                                displayedWord = string.Join(" ", displayedWord.Reverse());
+                                break;
+                            case PacketType.GameEnterCharacter:
+                                break;
+                            case PacketType.GameResult:
+                                break;
+                        }
+                    }
+                    else
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
 }

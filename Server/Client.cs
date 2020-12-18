@@ -19,7 +19,8 @@ namespace Server
         private BinaryWriter writer;
         private object readLock;
         private object writeLock;
-        public string name;
+        public string name; //for chat clients
+        public int ID; //for game clients
 
         public Client(Socket clientSocket)
         {

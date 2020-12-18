@@ -14,7 +14,12 @@ namespace Packets
         NewName,
         Connect,
         Disconnect,
-        UserListPacket
+        UserListPacket,
+        GameConnect,
+        GameDisconnect,
+        GameSetWord,
+        GameEnterCharacter,
+        GameResult
     }
 
     [Serializable]
@@ -95,6 +100,61 @@ namespace Packets
         {
             userList = _userList;
             packetType = PacketType.UserListPacket;
+        }
+    }
+    [Serializable]
+    public class GameConnectPacket : Packet
+    {
+        public int ID;
+
+        public GameConnectPacket(int _ID)
+        {
+            ID = _ID;
+            packetType = PacketType.GameConnect;
+        }
+    }
+    [Serializable]
+    public class GameDisconnectPacket : Packet
+    {
+        public int ID;
+
+        public GameDisconnectPacket(int _ID)
+        {
+            ID = _ID;
+            packetType = PacketType.GameDisconnect;
+        }
+    }
+    [Serializable]
+    public class GameSetWordPacket : Packet
+    {
+        public string correctWord;
+
+        public GameSetWordPacket(string _correctWord)
+        {
+            correctWord = _correctWord;
+            packetType = PacketType.GameSetWord;
+        }
+    }
+    [Serializable]
+    public class GameEnterCharacterPacket : Packet
+    {
+        public char character;
+
+        public GameEnterCharacterPacket(char _character)
+        {
+            character = _character;
+            packetType = PacketType.GameEnterCharacter;
+        }
+    }
+    [Serializable]
+    public class GameResultPacket : Packet
+    {
+        public bool win;
+
+        public GameResultPacket(bool _win)
+        {
+            win = _win;
+            packetType = PacketType.GameResult;
         }
     }
 }

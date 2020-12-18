@@ -123,7 +123,7 @@ namespace Client
             if (index != ListBox.NoMatches)
             {
                 string name = UserListBox.Items[index].ToString();
-                if(name != userName)
+                if(name != (userName + "#" + client.ID))
                     OpenPrivateMessage(name, null);
             }
         }

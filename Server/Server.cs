@@ -17,34 +17,18 @@ namespace Server
 
         private bool running = true;
 
-        //ServerForm form;// = new ServerForm(this);
-
         public Server(string ipAddress, int port)
         {
             IPAddress IP = IPAddress.Parse(ipAddress);
             tcpListener = new TcpListener(IP, port);
-            //ServerForm form = new ServerForm(this);
-            //Application.Run(form);
-
-            //new ServerForm(this).ShowDialog();
-            //new ServerForm(this, ipAddress, port).ShowDialog();
 
             new Thread(() => new ServerForm(this, ipAddress, port).ShowDialog()).Start();
-            //form.Show();
-
-            //form = new ServerForm(this);
         }
 
         public void Start()
         {
             try
             {
-                //if(!form.Visible)
-                //{
-                //    //form = new ServerForm(this);//.ShowDialog();
-                //    form.ShowDialog();
-                //}
-
                 running = true;
                 tcpListener.Start();
 
@@ -136,6 +120,35 @@ namespace Server
                                 if(cli.Value.name == msgPacket.receiver)
                                 {
                                     cli.Value.Send(msgPacket);
+                                }
+                            }
+                            break;
+                        case PacketType.GameConnect:
+                            GameConnectPacket gameConnectPacket = (GameConnectPacket)receivedMessage;
+                            clients[index].ID = gameConnectPacket.ID;
+                            clients[index].connectedPlayers = gameConnectPacket.connectedPlayers;
+                            if (clients[index].connectedPlayers.Count >= 2)
+                            {
+                                break;
+                            }
+                            foreach (KeyValuePair<int, Client> cli in clients)
+                            {
+                                if (cli.Value.connectedPlayers.Count < 2)
+                                {
+                                    cli.Value.Send(new GameConnectPacket(gameConnectPacket.ID, gameConnectPacket.connectedPlayers, gameConnectPacket.playerType == GameConnectPacket.PlayerType.Chooser ? GameConnectPacket.PlayerType.Guesser : GameConnectPacket.PlayerType.Chooser)); //make other player the opposite player type
+                                    cli.Value.connectedPlayers.Add(gameConnectPacket.ID);
+                                    break; //break out of foreach so only connect to one other player
+                                }
+                            }
+                            break;
+                        case PacketType.GameDisconnect:
+                            GameDisconnectPacket gameDisconnectPacket = (GameDisconnectPacket)receivedMessage;
+                            foreach(KeyValuePair<int, Client> cli in clients)
+                            {
+                                if(cli.Value.ID != clients[index].ID)
+                                {
+                                    cli.Value.Send(gameDisconnectPacket);
+                                    break; //send to the other player, not to the player that sent the packet
                                 }
                             }
                             break;

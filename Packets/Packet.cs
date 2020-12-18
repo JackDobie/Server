@@ -106,10 +106,15 @@ namespace Packets
     public class GameConnectPacket : Packet
     {
         public int ID;
+        public List<int> connectedPlayers;
+        public enum PlayerType { Chooser = 1, Guesser }
+        public PlayerType playerType;
 
-        public GameConnectPacket(int _ID)
+        public GameConnectPacket(int _ID, List<int> _connectedPlayers, PlayerType _playerType)
         {
             ID = _ID;
+            connectedPlayers = _connectedPlayers;
+            playerType = _playerType;
             packetType = PacketType.GameConnect;
         }
     }
@@ -117,10 +122,12 @@ namespace Packets
     public class GameDisconnectPacket : Packet
     {
         public int ID;
+        public List<int> connectedPlayers;
 
-        public GameDisconnectPacket(int _ID)
+        public GameDisconnectPacket(int _ID, List<int> _connectedPlayers)
         {
             ID = _ID;
+            connectedPlayers = _connectedPlayers;
             packetType = PacketType.GameDisconnect;
         }
     }

@@ -21,7 +21,8 @@ namespace Game1
         BinaryWriter writer;
         int userID = new Random().Next(10000);
 
-        bool connected = false;
+        bool connected;
+        List<int> connectedPlayers = new List<int>();
 
         //to load content to project, open cmd and enter mgcb-editor
         private GraphicsDeviceManager _graphics;
@@ -39,7 +40,12 @@ namespace Game1
         string displayedWord;
 
         SpriteFont font;
-        enum TextAlignment { Centre = 0, Left, Right }
+        enum TextAlignment { Centre = 1, Left, Right }
+
+        enum GameScreen { WaitForStart = 1, ChooserMain, GuesserMain, EndScreen }
+        GameScreen currentScreen;
+        enum PlayerType { Chooser = 1, Guesser }
+        PlayerType currentPlayerType;
 
         public Game1()
         {
@@ -49,10 +55,28 @@ namespace Game1
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
+            Start();
+        }
+
+        void Start()
+        {
             hangmanState = 0;
             correctWord = "hello";
             displayedWord += new string('_', correctWord.Length);
             displayedWord = string.Join(" ", displayedWord.Reverse()); //turns word into _ _ _ _
+            currentScreen = GameScreen.WaitForStart;
+            connected = false;
+
+            if (Connect("127.0.0.1", 4444))
+            {
+                connectedPlayers.Add(userID);
+                ConnectPacket();
+                connected = true;
+            }
+            else
+            {
+                Exit();
+            }
         }
 
         protected override void Initialize()
@@ -84,6 +108,9 @@ namespace Game1
         {
             keyState = Keyboard.GetState();
 
+            if (connected)
+                ProcessServerResponse();
+
             if (keyState.IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -97,18 +124,34 @@ namespace Game1
 
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(hangmanTex[hangmanState < 9 ? hangmanState : 9], hangmanRectangle, Color.White);
-
-            DrawTextAligned(displayedWord, new Rectangle(35, 650, 530, 65), TextAlignment.Centre, Color.Black);
-
-            if(hangmanState >= 9)
+            if(currentScreen == GameScreen.WaitForStart)
             {
-                DrawText("You lose!", new Vector2(260.0f, 30.0f), Color.Black, 24.0f);
+                DrawTextAligned("Waiting for second player", new Rectangle(new Point(0), new Point(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)), TextAlignment.Centre, Color.Black);
+            }
+            else if(currentScreen != GameScreen.EndScreen)
+            {
+                _spriteBatch.Draw(hangmanTex[hangmanState < 9 ? hangmanState : 9], hangmanRectangle, Color.White);
+
+                DrawTextAligned(displayedWord, new Rectangle(35, 650, 530, 65), TextAlignment.Centre, Color.Black);
+
+                if (hangmanState >= 9)
+                {
+                    DrawText(currentPlayerType == PlayerType.Chooser ? "You lose!" : "The guesser lost!", new Vector2(260.0f, 30.0f), Color.Black, 24);
+                }
             }
 
             _spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        void StartGame()
+        {
+
+        }
+        void StopGame()
+        {
+
         }
 
         /// <summary> Returns true the first frame the key is pressed </summary>
@@ -143,25 +186,28 @@ namespace Game1
             var pressedKey = args.Key;
             var character = args.Character;
 
-            if(!keysPressed.Contains(pressedKey))
+            if(currentScreen == GameScreen.GuesserMain)
             {
-                keysPressed.Add(pressedKey);
+                if (!keysPressed.Contains(pressedKey))
+                {
+                    keysPressed.Add(pressedKey);
 
-                if(correctWord.Contains(character))
-                {
-                    StringBuilder sb = new StringBuilder(displayedWord);
-                    for (int i = 0; i < correctWord.Length; i++)
+                    if (correctWord.Contains(character))
                     {
-                        if (correctWord.Substring(i, 1) == character.ToString())
+                        StringBuilder sb = new StringBuilder(displayedWord);
+                        for (int i = 0; i < correctWord.Length; i++)
                         {
-                            sb[i + i] = character;
+                            if (correctWord.Substring(i, 1) == character.ToString())
+                            {
+                                sb[i + i] = character;
+                            }
                         }
+                        displayedWord = sb.ToString();
                     }
-                    displayedWord = sb.ToString();
-                }
-                else
-                {
-                    AdvanceHangman();
+                    else
+                    {
+                        AdvanceHangman();
+                    }
                 }
             }
         }
@@ -255,41 +301,78 @@ namespace Game1
             int byteNum;
             try
             {
-                while (connected)
+                if ((byteNum = reader.ReadInt32()) != 0)
                 {
-                    if ((byteNum = reader.ReadInt32()) != 0)
+                    byte[] buffer = reader.ReadBytes(byteNum);
+                    MemoryStream memstream = new MemoryStream(buffer);
+
+                    Packet packet = formatter.Deserialize(memstream) as Packet;
+
+                    switch (packet.packetType)
                     {
-                        byte[] buffer = reader.ReadBytes(byteNum);
-                        MemoryStream memstream = new MemoryStream(buffer);
-
-                        Packet packet = formatter.Deserialize(memstream) as Packet;
-
-                        switch (packet.packetType)
-                        {
-                            case PacketType.GameConnect:
-                                break;
-                            case PacketType.GameDisconnect:
-                                break;
-                            case PacketType.GameSetWord:
-                                GameSetWordPacket wordPacket = (GameSetWordPacket)packet;
-                                correctWord = wordPacket.correctWord;
-                                displayedWord = "";
-                                displayedWord += new string('_', correctWord.Length);
-                                displayedWord = string.Join(" ", displayedWord.Reverse());
-                                break;
-                            case PacketType.GameEnterCharacter:
-                                break;
-                            case PacketType.GameResult:
-                                break;
-                        }
+                        case PacketType.GameConnect:
+                            GameConnectPacket connectPacket = (GameConnectPacket)packet;
+                            connectedPlayers.Add(connectPacket.ID);
+                            currentPlayerType = connectPacket.playerType == GameConnectPacket.PlayerType.Chooser ? PlayerType.Chooser : PlayerType.Guesser;
+                            StartGame();
+                            break;
+                        case PacketType.GameDisconnect:
+                            StopGame();
+                            break;
+                        case PacketType.GameSetWord:
+                            GameSetWordPacket wordPacket = (GameSetWordPacket)packet;
+                            correctWord = wordPacket.correctWord;
+                            displayedWord = "";
+                            displayedWord += new string('_', correctWord.Length);
+                            displayedWord = string.Join(" ", displayedWord.Reverse());
+                            break;
+                        case PacketType.GameEnterCharacter:
+                            if(currentPlayerType == PlayerType.Chooser)
+                            {
+                                //do stuff
+                            }
+                            break;
+                        case PacketType.GameResult:
+                            GameResultPacket resultPacket = (GameResultPacket)packet;
+                            if(resultPacket.win)
+                            {
+                                //do stuff
+                            }
+                            else
+                            {
+                                //do stuff
+                            }
+                            break;
                     }
-                    else
-                        break;
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex);
+                //ooga booga
             }
         }
+
+        public void ConnectPacket()
+        {
+            int rand = new Random().Next(1, 3);
+            currentPlayerType = rand == 1 ? PlayerType.Chooser : PlayerType.Guesser;
+            GameConnectPacket packet = new GameConnectPacket(userID, connectedPlayers, rand == 1 ? GameConnectPacket.PlayerType.Chooser : GameConnectPacket.PlayerType.Guesser);
+            SendPacket(packet);
+        }
+        public void DisconnectPacket()
+        {
+            GameDisconnectPacket packet = new GameDisconnectPacket(userID, connectedPlayers);
+            SendPacket(packet);
+        }
+
+        void SendPacket(Packet packet)
+        {
+            MemoryStream memstream = new MemoryStream();
+            formatter.Serialize(memstream, packet);
+            byte[] buffer = memstream.GetBuffer();
+            writer.Write(buffer.Length);
+            writer.Write(buffer);
+            writer.Flush();
+        }
+    }
 }

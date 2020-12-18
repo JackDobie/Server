@@ -23,9 +23,9 @@ namespace Game1
 
         string correctWord;
         string displayedWord;
-        string displayedWord2;
 
         SpriteFont font;
+        enum TextAlignment { Centre = 0, Left, Right }
 
         public Game1()
         {
@@ -38,7 +38,7 @@ namespace Game1
             hangmanState = 0;
             correctWord = "hello";
             displayedWord += new string('_', correctWord.Length);
-            displayedWord2 = string.Join(" ", displayedWord.Reverse()); //turns word into _ _ _ _
+            displayedWord = string.Join(" ", displayedWord.Reverse()); //turns word into _ _ _ _
         }
 
         protected override void Initialize()
@@ -70,11 +70,6 @@ namespace Game1
         {
             keyState = Keyboard.GetState();
 
-            if(GetKeyDown(Keys.Space))
-            {
-                AdvanceHangman();
-            }
-
             if (keyState.IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -88,7 +83,14 @@ namespace Game1
 
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(hangmanTex[hangmanState], hangmanRectangle, Color.White);
+            _spriteBatch.Draw(hangmanTex[hangmanState < 9 ? hangmanState : 9], hangmanRectangle, Color.White);
+            //650 35
+            //DrawText(displayedWord, new Vector2(35.0f, 650.0f), Color.Black, 0.0f,);
+            //300 650
+            //DrawText(displayedWord, new Vector2(300.0f, 650.0f), Color.Black, 0.0f, Vector2.Zero, 24, new SpriteEffects(), 0.0f);
+            //DrawTextCentre(displayedWord, new Vector2(300.0f, 650.0f), Color.Black, Vector2.Zero, 24.0f);
+
+            DrawTextAligned(displayedWord, new Rectangle(35, 650, 530, 65), TextAlignment.Centre, Color.Black);
 
             if(hangmanState >= 9)
             {
@@ -124,10 +126,7 @@ namespace Game1
 
         void AdvanceHangman()
         {
-            if(hangmanState < 9)
-            {
-                hangmanState++;
-            }
+            hangmanState++;
         }
 
         void TextInputHandler(object sender, TextInputEventArgs args)
@@ -146,7 +145,7 @@ namespace Game1
                     {
                         if (correctWord.Substring(i, 1) == character.ToString())
                         {
-                            sb[i] = character;
+                            sb[i + i] = character;
                         }
                     }
                     displayedWord = sb.ToString();
@@ -158,21 +157,45 @@ namespace Game1
             }
         }
 
-        void DrawText(string text, Vector2 position, Color color)
+        /// <summary> Draws text to the screen. Must be called in Draw(), as it uses the spritebatch </summary>
+        void DrawText(string text, Vector2 position, Color colour)
         {
-            _spriteBatch.DrawString(font, text, position, color);
+            _spriteBatch.DrawString(font, text, position, colour);
         }
-        void DrawText(string text, Vector2 position, Color color, Vector2 scale)
+        void DrawText(string text, Vector2 position, Color colour, Vector2 scale)
         {
-            _spriteBatch.DrawString(font, text, position, color, 0.0f, new Vector2(0), scale, new SpriteEffects(), 0.0f);
+            _spriteBatch.DrawString(font, text, position, colour, 0.0f, new Vector2(0), scale, SpriteEffects.None, 0.0f);
         }
-        void DrawText(string text, Vector2 position, Color color, float size)
+        /// <summary> The scale is (size / 48) as the font size is 48. If the font size changes, the function must be changed </summary>
+        void DrawText(string text, Vector2 position, Color colour, float size)
         {
-            _spriteBatch.DrawString(font, text, position, color, 0.0f, new Vector2(0), size / 48, new SpriteEffects(), 0.0f);
+            _spriteBatch.DrawString(font, text, position, colour, 0.0f, new Vector2(0), size / 48, SpriteEffects.None, 0.0f);
         }
-        void DrawText(string text, Vector2 position, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)
+        void DrawText(string text, Vector2 position, Color colour, float rotation, Vector2 origin, float size, SpriteEffects effects, float layerDepth)
         {
-            _spriteBatch.DrawString(font, text, position, color, rotation, origin, scale, effects, layerDepth);
+            _spriteBatch.DrawString(font, text, position, colour, rotation, origin, size / 48, effects, layerDepth);
+        }
+        void DrawTextAligned(string text, Rectangle bounds, TextAlignment align, Color colour)
+        {
+            Vector2 size = font.MeasureString(text);
+            Vector2 pos = GetRectCentre(bounds);// new Vector2(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
+            Vector2 origin = size * 0.5f;
+
+            switch (align)
+            {
+                case TextAlignment.Left:
+                    origin.X += bounds.Width / 2 - size.X / 2;
+                    break;
+                case TextAlignment.Right:
+                    origin.X -= bounds.Width / 2 - size.X / 2;
+                    break;
+            }
+            _spriteBatch.DrawString(font, text, pos, colour, 0, origin, 1, SpriteEffects.None, 0);
+        }
+
+        Vector2 GetRectCentre(Rectangle rect)
+        {
+            return new Vector2(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
         }
     }
 }

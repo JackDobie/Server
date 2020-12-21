@@ -135,6 +135,10 @@ namespace Server
                             {
                                 if (cli.Value.connectedPlayers.Count < 2)
                                 {
+                                    if (cli.Value.ID == clients[index].ID)
+                                    {
+                                        break; //don't connect to yourself
+                                    }
                                     cli.Value.Send(new GameConnectPacket(gameConnectPacket.ID, gameConnectPacket.connectedPlayers, gameConnectPacket.playerType == GameConnectPacket.PlayerType.Chooser ? GameConnectPacket.PlayerType.Guesser : GameConnectPacket.PlayerType.Chooser)); //make other player the opposite player type
                                     cli.Value.connectedPlayers.Add(gameConnectPacket.ID);
                                     break; //break out of foreach so only connect to one other player
@@ -149,6 +153,36 @@ namespace Server
                                 {
                                     cli.Value.Send(gameDisconnectPacket);
                                     break; //send to the other player, not to the player that sent the packet
+                                }
+                            }
+                            break;
+                        case PacketType.GameResult:
+                            GameResultPacket resultPacket = (GameResultPacket)receivedMessage;
+                            foreach (KeyValuePair<int, Client> cli in clients)
+                            {
+                                if(clients[index].connectedPlayers.Contains(cli.Value.ID))
+                                {
+                                    cli.Value.Send(resultPacket);
+                                }
+                            }
+                            break;
+                        case PacketType.GameUpdateDisplayedWord:
+                            GameUpdateWordPacket updateWordPacket = (GameUpdateWordPacket)receivedMessage;
+                            foreach (KeyValuePair<int, Client> cli in clients)
+                            {
+                                if (clients[index].connectedPlayers.Contains(cli.Value.ID))
+                                {
+                                    cli.Value.Send(updateWordPacket);
+                                }
+                            }
+                            break;
+                        case PacketType.GameUpdateHangmanState:
+                            GameUpdateHangmanPacket updateHangmanPacket = (GameUpdateHangmanPacket)receivedMessage;
+                            foreach (KeyValuePair<int, Client> cli in clients)
+                            {
+                                if (clients[index].connectedPlayers.Contains(cli.Value.ID))
+                                {
+                                    cli.Value.Send(updateHangmanPacket);
                                 }
                             }
                             break;

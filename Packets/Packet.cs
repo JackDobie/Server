@@ -18,7 +18,8 @@ namespace Packets
         GameConnect,
         GameDisconnect,
         GameSetWord,
-        GameEnterCharacter,
+        GameUpdateDisplayedWord,
+        GameUpdateHangmanState,
         GameResult
     }
 
@@ -143,14 +144,14 @@ namespace Packets
         }
     }
     [Serializable]
-    public class GameEnterCharacterPacket : Packet
+    public class GameUpdateWordPacket : Packet
     {
-        public char character;
+        public string displayedWord;
 
-        public GameEnterCharacterPacket(char _character)
+        public GameUpdateWordPacket(string _displayedWord)
         {
-            character = _character;
-            packetType = PacketType.GameEnterCharacter;
+            displayedWord = _displayedWord;
+            packetType = PacketType.GameUpdateDisplayedWord;
         }
     }
     [Serializable]
@@ -162,6 +163,17 @@ namespace Packets
         {
             win = _win;
             packetType = PacketType.GameResult;
+        }
+    }
+    [Serializable]
+    public class GameUpdateHangmanPacket : Packet
+    {
+        public int hangmanState;
+
+        public GameUpdateHangmanPacket(int _hangmanState)
+        {
+            hangmanState = _hangmanState;
+            packetType = PacketType.GameUpdateHangmanState;
         }
     }
 }

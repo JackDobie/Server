@@ -155,20 +155,6 @@ namespace Client
                 UserListBox.Items.Clear();
                 UserListBox.Items.AddRange(list.ToArray());
 
-                //List<string> userList = UserListBox.Items.Cast<string>().ToList();
-                //if (userList.Count(x => x == userName) > 1)
-                //{
-                //    int id = 1;
-                //    string name = userName;
-                //    while (userList.Count(x => x == name) > 1)// Contains(name))
-                //    {
-                //        name = userName + id++;
-                //    }
-                //    client.EditName(name);
-                //    userName = name;
-                //    NameTextBox.Text = name;
-                //}
-
                 List<string> disconnectedPMs = new List<string>();
                 disconnectedPMs = client.openPrivateMessages.Keys.Where(x => !UserListBox.Items.Contains(x)).ToList();
                 foreach (string str in disconnectedPMs)
@@ -257,7 +243,6 @@ namespace Client
                 catch (Exception ex)
                 {
                     SendToChat("There was an error connecting to the server: " + ex.Message, bold: true);
-                    //Console.WriteLine("There was an error connecting to the server: " + ex.Message);
                 }
             }
         }

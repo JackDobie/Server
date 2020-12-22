@@ -5,7 +5,6 @@ using Packets;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -25,7 +24,6 @@ namespace Game1
         bool connected;
         List<int> connectedPlayers = new List<int>();
 
-        //to load content to project, open cmd and enter mgcb-editor
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
@@ -404,7 +402,6 @@ namespace Game1
                                 correctWord = wordPacket.correctWord;
                                 displayedWord = "";
                                 displayedWord += new string('_', correctWord.Length);
-                                //displayedWord = string.Join(" ", displayedWord.Reverse());
                                 SwitchScreen(GameScreen.Main);
                                 break;
                             case PacketType.GameUpdateDisplayedWord:
@@ -440,7 +437,6 @@ namespace Game1
             }
             catch(Exception ex)
             {
-                //ooga booga
                 connected = false;
             }
         }

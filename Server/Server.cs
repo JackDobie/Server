@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections.Concurrent;
 using Packets;
-using System.Windows.Forms;
 
 namespace Server
 {
@@ -139,7 +138,6 @@ namespace Server
                                     {
                                         break; //don't connect to yourself
                                     }
-                                    //GameConnectPacket.PlayerType cliPlayerType = gameConnectPacket.playerType == GameConnectPacket.PlayerType.Chooser ? GameConnectPacket.PlayerType.Guesser : GameConnectPacket.PlayerType.Chooser;
                                     cli.Value.connectedPlayers.Add(gameConnectPacket.ID);
                                     clients[index].connectedPlayers.Add(cli.Value.ID);
                                     cli.Value.Send(new GameConnectPacket(gameConnectPacket.ID, cli.Value.connectedPlayers, GameConnectPacket.PlayerType.Chooser));

@@ -30,7 +30,7 @@ namespace Game1
         private SpriteBatch _spriteBatch;
 
         List<Texture2D> hangmanTex = new List<Texture2D>();
-        Rectangle hangmanRectangle = new Rectangle(new Point(74, 74), new Point(453));
+        Rectangle hangmanRectangle = new Rectangle(new Point(74), new Point(453));
         int hangmanState;
 
         List<Keys> keysPressed = new List<Keys>();
@@ -43,12 +43,15 @@ namespace Game1
         SpriteFont font;
         enum TextAlignment { Centre = 1, Left, Right }
 
-        enum GameScreen { WaitForConnect = 1, WaitForStart, Main, EndScreen }
+        enum GameScreen { WaitForConnect = 1, WaitForStart, Main }
         GameScreen currentScreen;
         enum PlayerType { Chooser = 1, Guesser }
         PlayerType currentPlayerType;
 
         Rectangle fullScreenRect;
+
+        bool stopGame;
+        string stopGameMessage;
 
         public Game1()
         {
@@ -71,6 +74,8 @@ namespace Game1
             connected = false;
             typingEnabled = false;
             fullScreenRect = new Rectangle(new Point(0), new Point(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight));
+            stopGame = false;
+            stopGameMessage = "";
 
             if (Connect("127.0.0.1", 4444))
             {
@@ -118,19 +123,12 @@ namespace Game1
 
             switch (currentScreen)
             {
-                case GameScreen.WaitForConnect:
-                    break;
-                case GameScreen.WaitForStart:
-                    break;
                 case GameScreen.Main:
                     if(hangmanState >= 9)
                     {
                         typingEnabled = false;
                         ResultPacket(false);
-                        SwitchScreen(GameScreen.EndScreen);
                     }
-                    break;
-                default:
                     break;
             }
 
@@ -143,23 +141,34 @@ namespace Game1
 
             _spriteBatch.Begin();
 
+            if (stopGame)
+                StopGame(stopGameMessage);
+
             switch(currentScreen)
             {
                 case GameScreen.WaitForConnect:
-                    DrawTextAligned("Waiting for second player to connect.", fullScreenRect, TextAlignment.Centre, Color.Black);
+                    DrawTextAligned("Waiting for second player to connect.", fullScreenRect, TextAlignment.Centre, Color.Black, 24);
                     break;
                 case GameScreen.WaitForStart:
                     if(currentPlayerType == PlayerType.Guesser)
-                        DrawTextAligned("Waiting for the chooser to pick a word.", fullScreenRect, TextAlignment.Centre, Color.Black);
+                        DrawTextAligned("Waiting for the chooser to pick a word.", fullScreenRect, TextAlignment.Centre, Color.Black, 24);
                     else
-                        DrawTextAligned("Enter a word: " + correctWord, fullScreenRect, TextAlignment.Centre, Color.Black);
+                        DrawTextAligned("Enter a word:\n" + correctWord, fullScreenRect, TextAlignment.Centre, Color.Black, 24);
                     break;
                 case GameScreen.Main:
                     _spriteBatch.Draw(hangmanTex[hangmanState < 9 ? hangmanState : 9], hangmanRectangle, Color.White);
-                    DrawTextAligned(displayedWord, new Rectangle(35, 650, 530, 65), TextAlignment.Centre, Color.Black);
+                    DrawTextAligned(displayedWord, new Rectangle(35, 650, 530, 65), TextAlignment.Centre, Color.Black, 24);
+                    if(currentPlayerType == PlayerType.Chooser)
+                    {
+                        DrawTextAligned("The other player is now guessing.\nThe correct word is '" + correctWord + "'", new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, 70), TextAlignment.Centre, Color.Black, 18);
+                    }
+                    else if (currentPlayerType == PlayerType.Guesser)
+                    {
+                        DrawTextAligned("You are the guesser", new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, 70), TextAlignment.Centre, Color.Black, 24);
+                    }
                     break;
                 default:
-                    DrawTextAligned("Game screen not set up: " + currentScreen.ToString(), fullScreenRect, TextAlignment.Centre, Color.Black);
+                    DrawTextAligned("Screen not set up: " + currentScreen.ToString(), fullScreenRect, TextAlignment.Centre, Color.Black, 24);
                     break;
             }
 
@@ -194,7 +203,7 @@ namespace Game1
         }
         void StopGame(string displayedText)
         {
-            DrawTextAligned(displayedText, fullScreenRect, TextAlignment.Centre, Color.Black);
+            DrawTextAligned(displayedText, fullScreenRect, TextAlignment.Centre, Color.Black, 24);
             Thread.Sleep(2000);
             Exit();
             //display text
@@ -224,23 +233,49 @@ namespace Game1
                             SetWordPacket(correctWord);
                         }
                     }
-                    else
+                    if(pressedKey == Keys.Space)
                     {
-                        if (char.IsLetter(character))
-                        {
-                            correctWord += character;
-                        }
+                        correctWord += " ";
+                    }
+
+                    if (char.IsLetter(character))
+                    {
+                        correctWord += character;
                     }
                 }
 
-                if (char.IsLetter(character))
+                if (currentScreen == GameScreen.Main && currentPlayerType == PlayerType.Guesser)
                 {
-                    if (currentScreen == GameScreen.Main && currentPlayerType == PlayerType.Guesser)
+                    if (!keysPressed.Contains(pressedKey))
                     {
-                        if (!keysPressed.Contains(pressedKey))
-                        {
-                            keysPressed.Add(pressedKey);
+                        keysPressed.Add(pressedKey);
 
+                        if(pressedKey == Keys.Space)
+                        {
+                            if (correctWord.Contains(' '))
+                            {
+                                StringBuilder sb = new StringBuilder(displayedWord);
+                                for (int i = 0; i < correctWord.Length; i++)
+                                {
+                                    if (correctWord.Substring(i, 1) == " ")
+                                    {
+                                        sb[i + i] = ' ';
+                                    }
+                                }
+                                displayedWord = sb.ToString();
+                                if (displayedWord == correctWord)
+                                {
+                                    ResultPacket(true);
+                                }
+                                else
+                                {
+                                    UpdateDisplayedWordPacket();
+                                    UpdateHangmanStatePacket();
+                                }
+                            }
+                        }
+                        else if (char.IsLetter(character))
+                        {
                             if (correctWord.Contains(character))
                             {
                                 StringBuilder sb = new StringBuilder(displayedWord);
@@ -252,8 +287,15 @@ namespace Game1
                                     }
                                 }
                                 displayedWord = sb.ToString();
-                                UpdateDisplayedWordPacket();
-                                UpdateHangmanStatePacket();
+                                if (displayedWord == correctWord)
+                                {
+                                    ResultPacket(true);
+                                }
+                                else
+                                {
+                                    UpdateDisplayedWordPacket();
+                                    UpdateHangmanStatePacket();
+                                }
                             }
                             else
                             {
@@ -277,13 +319,13 @@ namespace Game1
         /// <summary> The scale is (size / 48) as the font size is 48. If the font size changes, the function must be changed </summary>
         void DrawText(string text, Vector2 position, Color colour, float size)
         {
-            _spriteBatch.DrawString(font, text, position, colour, 0.0f, new Vector2(0), size / 48, SpriteEffects.None, 0.0f);
+            _spriteBatch.DrawString(font, text, position, colour, 0.0f, new Vector2(0), size / 24, SpriteEffects.None, 0.0f);
         }
         void DrawText(string text, Vector2 position, Color colour, float rotation, Vector2 origin, float size, SpriteEffects effects, float layerDepth)
         {
-            _spriteBatch.DrawString(font, text, position, colour, rotation, origin, size / 48, effects, layerDepth);
+            _spriteBatch.DrawString(font, text, position, colour, rotation, origin, size / 24, effects, layerDepth);
         }
-        void DrawTextAligned(string text, Rectangle bounds, TextAlignment align, Color colour)
+        void DrawTextAligned(string text, Rectangle bounds, TextAlignment align, Color colour, float scale)
         {
             Vector2 size = font.MeasureString(text);
             Vector2 pos = GetRectCentre(bounds);
@@ -298,7 +340,7 @@ namespace Game1
                     origin.X -= (bounds.Width / 2) - (size.X / 2);
                     break;
             }
-            _spriteBatch.DrawString(font, text, pos, colour, 0, origin, 1, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(font, text, pos, colour, 0, origin, scale / 24, SpriteEffects.None, 0);
         }
 
         Vector2 GetRectCentre(Rectangle rect)
@@ -372,7 +414,8 @@ namespace Game1
                                 SwitchScreen(GameScreen.WaitForStart);
                                 break;
                             case PacketType.GameDisconnect:
-                                StopGame("Other player has disconnected.");
+                                stopGame = true;
+                                stopGameMessage = "The other player has disconnected";
                                 break;
                             case PacketType.GameSetWord:
                                 GameSetWordPacket wordPacket = (GameSetWordPacket)packet;
@@ -394,19 +437,19 @@ namespace Game1
                                 {
                                     GameUpdateHangmanPacket updateHangmanPacket = (GameUpdateHangmanPacket)packet;
                                     hangmanState = updateHangmanPacket.hangmanState;
-                                    if (hangmanState >= 9)
-                                        SwitchScreen(GameScreen.EndScreen);
                                 }
                                 break;
                             case PacketType.GameResult:
                                 GameResultPacket resultPacket = (GameResultPacket)packet;
                                 if (resultPacket.win)
                                 {
-                                    StopGame(currentPlayerType == PlayerType.Guesser ? "You win!" : "The guesser won!");
+                                    stopGame = true;
+                                    stopGameMessage = currentPlayerType == PlayerType.Guesser ? "You win!" : "The guesser won!";
                                 }
                                 else
                                 {
-                                    StopGame(currentPlayerType == PlayerType.Guesser ? "You lost! The correct word was " + correctWord : "The guesser lost! The correct word was " + correctWord);
+                                    stopGame = true;
+                                    stopGameMessage = currentPlayerType == PlayerType.Guesser ? "You lost! The correct word was " + correctWord : "The guesser lost! The correct word was " + correctWord;
                                 }
                                 break;
                         }

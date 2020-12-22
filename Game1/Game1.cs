@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Game1
@@ -70,9 +69,6 @@ namespace Game1
         void Start()
         {
             hangmanState = 0;
-            //correctWord = "hello";
-            //displayedWord += new string('_', correctWord.Length);
-            //displayedWord = string.Join(" ", displayedWord.Reverse()); //turns word into _ _ _ _
             SwitchScreen(GameScreen.WaitForConnect);
             connected = false;
             typingEnabled = false;

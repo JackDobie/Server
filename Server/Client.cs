@@ -62,12 +62,19 @@ namespace Server
         {
             lock(writeLock)
             {
-                MemoryStream memStream = new MemoryStream();
-                formatter.Serialize(memStream, message);
-                byte[] buffer = memStream.GetBuffer();
-                writer.Write(buffer.Length);
-                writer.Write(buffer);
-                writer.Flush();
+                try
+                {
+                    MemoryStream memStream = new MemoryStream();
+                    formatter.Serialize(memStream, message);
+                    byte[] buffer = memStream.GetBuffer();
+                    writer.Write(buffer.Length);
+                    writer.Write(buffer);
+                    writer.Flush();
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
     }

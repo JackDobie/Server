@@ -152,10 +152,13 @@ namespace Server
                             GameDisconnectPacket gameDisconnectPacket = (GameDisconnectPacket)receivedMessage;
                             foreach(KeyValuePair<int, Client> cli in clients)
                             {
-                                if(cli.Value.ID != clients[index].ID)
+                                if (clients[index].connectedPlayers.Contains(cli.Value.ID))
                                 {
-                                    cli.Value.Send(gameDisconnectPacket);
-                                    break; //send to the other player, not to the player that sent the packet
+                                    if (cli.Value.ID != clients[index].ID)
+                                    {
+                                        cli.Value.Send(gameDisconnectPacket);
+                                        break; //send to the other player, not to the player that sent the packet
+                                    }
                                 }
                             }
                             break;

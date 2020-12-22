@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Game1
@@ -41,9 +42,10 @@ namespace Game1
         string displayedWord;
 
         SpriteFont font;
+        SpriteFont font2;
         enum TextAlignment { Centre = 1, Left, Right }
 
-        enum GameScreen { WaitForConnect = 1, WaitForStart, Main }
+        enum GameScreen { WaitForConnect = 1, WaitForStart, Main, Stop }
         GameScreen currentScreen;
         enum PlayerType { Chooser = 1, Guesser }
         PlayerType currentPlayerType;
@@ -52,6 +54,7 @@ namespace Game1
 
         bool stopGame;
         string stopGameMessage;
+        bool canExit;
 
         public Game1()
         {
@@ -67,15 +70,16 @@ namespace Game1
         void Start()
         {
             hangmanState = 0;
-            correctWord = "hello";
-            displayedWord += new string('_', correctWord.Length);
-            displayedWord = string.Join(" ", displayedWord.Reverse()); //turns word into _ _ _ _
+            //correctWord = "hello";
+            //displayedWord += new string('_', correctWord.Length);
+            //displayedWord = string.Join(" ", displayedWord.Reverse()); //turns word into _ _ _ _
             SwitchScreen(GameScreen.WaitForConnect);
             connected = false;
             typingEnabled = false;
             fullScreenRect = new Rectangle(new Point(0), new Point(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight));
             stopGame = false;
             stopGameMessage = "";
+            canExit = false;
 
             if (Connect("127.0.0.1", 4444))
             {
@@ -114,22 +118,21 @@ namespace Game1
             hangmanTex.Add(this.Content.Load<Texture2D>("hangman/hangman-9"));
 
             font = Content.Load<SpriteFont>("Font");
+            font2 = Content.Load<SpriteFont>("Font2");
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (!connected)
+            if (!connected || canExit)
                 Exit();
 
-            switch (currentScreen)
+            if(currentScreen == GameScreen.Main)
             {
-                case GameScreen.Main:
-                    if(hangmanState >= 9)
-                    {
-                        typingEnabled = false;
-                        ResultPacket(false);
-                    }
-                    break;
+                if(hangmanState >= 9)
+                {
+                    typingEnabled = false;
+                    ResultPacket(false);
+                }
             }
 
             base.Update(gameTime);
@@ -141,36 +144,33 @@ namespace Game1
 
             _spriteBatch.Begin();
 
-            if (stopGame)
-                StopGame(stopGameMessage);
-
             switch(currentScreen)
             {
                 case GameScreen.WaitForConnect:
-                    DrawTextAligned("Waiting for second player to connect.", fullScreenRect, TextAlignment.Centre, Color.Black, 24);
+                    DrawTextAligned(font, "Waiting for second player to connect.", fullScreenRect, TextAlignment.Centre, Color.Black, 24);
                     break;
                 case GameScreen.WaitForStart:
                     if(currentPlayerType == PlayerType.Guesser)
-                        DrawTextAligned("Waiting for the chooser to pick a word.", fullScreenRect, TextAlignment.Centre, Color.Black, 24);
+                        DrawTextAligned(font, "Waiting for the chooser to pick a word.", fullScreenRect, TextAlignment.Centre, Color.Black, 24);
                     else
-                        DrawTextAligned("Enter a word:\n" + correctWord, fullScreenRect, TextAlignment.Centre, Color.Black, 24);
+                        DrawTextAligned(font, "Enter a word:\n" + correctWord, fullScreenRect, TextAlignment.Centre, Color.Black, 24);
                     break;
                 case GameScreen.Main:
                     _spriteBatch.Draw(hangmanTex[hangmanState < 9 ? hangmanState : 9], hangmanRectangle, Color.White);
-                    DrawTextAligned(displayedWord, new Rectangle(35, 650, 530, 65), TextAlignment.Centre, Color.Black, 24);
+                    DrawTextAligned(font2, displayedWord, new Rectangle(35, 650, 530, 65), TextAlignment.Centre, Color.Black, 24);
                     if(currentPlayerType == PlayerType.Chooser)
                     {
-                        DrawTextAligned("The other player is now guessing.\nThe correct word is '" + correctWord + "'", new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, 70), TextAlignment.Centre, Color.Black, 18);
+                        DrawTextAligned(font, "The other player is now guessing.\nThe correct word is '" + correctWord + "'", new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, 70), TextAlignment.Centre, Color.Black, 18);
                     }
                     else if (currentPlayerType == PlayerType.Guesser)
                     {
-                        DrawTextAligned("You are the guesser", new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, 70), TextAlignment.Centre, Color.Black, 24);
+                        DrawTextAligned(font, "You are the guesser", new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, 70), TextAlignment.Centre, Color.Black, 24);
                     }
                     break;
-                default:
-                    DrawTextAligned("Screen not set up: " + currentScreen.ToString(), fullScreenRect, TextAlignment.Centre, Color.Black, 24);
-                    break;
             }
+
+            if (stopGame)
+                StopGame(stopGameMessage);
 
             _spriteBatch.End();
 
@@ -203,17 +203,16 @@ namespace Game1
         }
         void StopGame(string displayedText)
         {
-            DrawTextAligned(displayedText, fullScreenRect, TextAlignment.Centre, Color.Black, 24);
-            Thread.Sleep(2000);
-            Exit();
-            //display text
-            //sleep for a few seconds
-            //exit game
+            SwitchScreen(GameScreen.Stop);
+            DrawTextAligned(font, displayedText, fullScreenRect, TextAlignment.Centre, Color.Black, 24);
+            Thread thread = new Thread(() => { canExit = WaitForSeconds(2); });
+            thread.Start();
         }
 
         void AdvanceHangman()
         {
             hangmanState++;
+            UpdateHangmanStatePacket();
         }
 
         void TextInputHandler(object sender, TextInputEventArgs args)
@@ -259,7 +258,7 @@ namespace Game1
                                 {
                                     if (correctWord.Substring(i, 1) == " ")
                                     {
-                                        sb[i + i] = ' ';
+                                        sb[i] = ' ';
                                     }
                                 }
                                 displayedWord = sb.ToString();
@@ -283,7 +282,7 @@ namespace Game1
                                 {
                                     if (correctWord.Substring(i, 1) == character.ToString())
                                     {
-                                        sb[i + i] = character;
+                                        sb[i] = character;
                                     }
                                 }
                                 displayedWord = sb.ToString();
@@ -294,7 +293,6 @@ namespace Game1
                                 else
                                 {
                                     UpdateDisplayedWordPacket();
-                                    UpdateHangmanStatePacket();
                                 }
                             }
                             else
@@ -307,27 +305,9 @@ namespace Game1
             }
         }
 
-        /// <summary> Draws text to the screen. Must be called in Draw(), as it uses the spritebatch </summary>
-        void DrawText(string text, Vector2 position, Color colour)
+        void DrawTextAligned(SpriteFont _font, string text, Rectangle bounds, TextAlignment align, Color colour, float scale)
         {
-            _spriteBatch.DrawString(font, text, position, colour);
-        }
-        void DrawText(string text, Vector2 position, Color colour, Vector2 scale)
-        {
-            _spriteBatch.DrawString(font, text, position, colour, 0.0f, new Vector2(0), scale, SpriteEffects.None, 0.0f);
-        }
-        /// <summary> The scale is (size / 48) as the font size is 48. If the font size changes, the function must be changed </summary>
-        void DrawText(string text, Vector2 position, Color colour, float size)
-        {
-            _spriteBatch.DrawString(font, text, position, colour, 0.0f, new Vector2(0), size / 24, SpriteEffects.None, 0.0f);
-        }
-        void DrawText(string text, Vector2 position, Color colour, float rotation, Vector2 origin, float size, SpriteEffects effects, float layerDepth)
-        {
-            _spriteBatch.DrawString(font, text, position, colour, rotation, origin, size / 24, effects, layerDepth);
-        }
-        void DrawTextAligned(string text, Rectangle bounds, TextAlignment align, Color colour, float scale)
-        {
-            Vector2 size = font.MeasureString(text);
+            Vector2 size = _font.MeasureString(text);
             Vector2 pos = GetRectCentre(bounds);
             Vector2 origin = size * 0.5f;
 
@@ -340,12 +320,18 @@ namespace Game1
                     origin.X -= (bounds.Width / 2) - (size.X / 2);
                     break;
             }
-            _spriteBatch.DrawString(font, text, pos, colour, 0, origin, scale / 24, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(_font, text, pos, colour, 0, origin, scale / 24, SpriteEffects.None, 0);
         }
 
         Vector2 GetRectCentre(Rectangle rect)
         {
             return new Vector2(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
+        }
+
+        bool WaitForSeconds(float time)
+        {
+            Thread.Sleep((int)(time * 1000));
+            return true;
         }
 
         bool Connect(string ipAddress, int port)
@@ -422,7 +408,7 @@ namespace Game1
                                 correctWord = wordPacket.correctWord;
                                 displayedWord = "";
                                 displayedWord += new string('_', correctWord.Length);
-                                displayedWord = string.Join(" ", displayedWord.Reverse());
+                                //displayedWord = string.Join(" ", displayedWord.Reverse());
                                 SwitchScreen(GameScreen.Main);
                                 break;
                             case PacketType.GameUpdateDisplayedWord:
@@ -449,7 +435,7 @@ namespace Game1
                                 else
                                 {
                                     stopGame = true;
-                                    stopGameMessage = currentPlayerType == PlayerType.Guesser ? "You lost! The correct word was " + correctWord : "The guesser lost! The correct word was " + correctWord;
+                                    stopGameMessage = currentPlayerType == PlayerType.Guesser ? "You lost!\nThe correct word was " + correctWord : "The guesser lost!\nThe correct word was " + correctWord;
                                 }
                                 break;
                         }

@@ -20,6 +20,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Font.spritefont
 
+#begin Font2.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Font2.spritefont
+
 #begin hangman/hangman-1.png
 /importer:TextureImporter
 /processor:TextureProcessor

@@ -108,7 +108,7 @@ namespace Packets
     {
         public int ID;
         public List<int> connectedPlayers;
-        public enum PlayerType { Chooser = 1, Guesser }
+        public enum PlayerType { Null = 0, Chooser, Guesser }
         public PlayerType playerType;
 
         public GameConnectPacket(int _ID, List<int> _connectedPlayers, PlayerType _playerType)

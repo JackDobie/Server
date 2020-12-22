@@ -139,8 +139,11 @@ namespace Server
                                     {
                                         break; //don't connect to yourself
                                     }
-                                    cli.Value.Send(new GameConnectPacket(gameConnectPacket.ID, gameConnectPacket.connectedPlayers, gameConnectPacket.playerType == GameConnectPacket.PlayerType.Chooser ? GameConnectPacket.PlayerType.Guesser : GameConnectPacket.PlayerType.Chooser)); //make other player the opposite player type
+                                    //GameConnectPacket.PlayerType cliPlayerType = gameConnectPacket.playerType == GameConnectPacket.PlayerType.Chooser ? GameConnectPacket.PlayerType.Guesser : GameConnectPacket.PlayerType.Chooser;
                                     cli.Value.connectedPlayers.Add(gameConnectPacket.ID);
+                                    clients[index].connectedPlayers.Add(cli.Value.ID);
+                                    cli.Value.Send(new GameConnectPacket(gameConnectPacket.ID, cli.Value.connectedPlayers, GameConnectPacket.PlayerType.Chooser));
+                                    clients[index].Send(new GameConnectPacket(gameConnectPacket.ID, clients[index].connectedPlayers, GameConnectPacket.PlayerType.Guesser));
                                     break; //break out of foreach so only connect to one other player
                                 }
                             }
@@ -183,6 +186,16 @@ namespace Server
                                 if (clients[index].connectedPlayers.Contains(cli.Value.ID))
                                 {
                                     cli.Value.Send(updateHangmanPacket);
+                                }
+                            }
+                            break;
+                        case PacketType.GameSetWord:
+                            GameSetWordPacket setWordPacket = (GameSetWordPacket)receivedMessage;
+                            foreach(KeyValuePair<int,Client> cli in clients)
+                            {
+                                if(clients[index].connectedPlayers.Contains(cli.Value.ID))
+                                {
+                                    cli.Value.Send(setWordPacket);
                                 }
                             }
                             break;

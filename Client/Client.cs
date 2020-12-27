@@ -13,7 +13,7 @@ namespace Client
     {
         private TcpClient tcpClient;
         private NetworkStream stream;
-        private BinaryFormatter formatter;
+        private BinaryFormatter formatter = new BinaryFormatter();
         private BinaryReader reader;
         private BinaryWriter writer;
 
@@ -38,7 +38,6 @@ namespace Client
                 connected = true;
                 tcpClient = new TcpClient(ipAddress, port);
                 stream = tcpClient.GetStream();
-                formatter = new BinaryFormatter();
                 reader = new BinaryReader(stream, Encoding.UTF8);
                 writer = new BinaryWriter(stream, Encoding.UTF8);
                 Console.WriteLine("Connected to " + ipAddress + ": " + port);

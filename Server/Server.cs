@@ -107,6 +107,7 @@ namespace Server
                             break;
                         case PacketType.Connect:
                             ConnectPacket connectPacket = (ConnectPacket)receivedMessage;
+                            clients[index].isGame = false;
                             clients[index].name = connectPacket.userName;
                             SendClientList();
                             break;
@@ -124,6 +125,7 @@ namespace Server
                             break;
                         case PacketType.GameConnect:
                             GameConnectPacket gameConnectPacket = (GameConnectPacket)receivedMessage;
+                            clients[index].isGame = true;
                             clients[index].ID = gameConnectPacket.ID;
                             clients[index].connectedPlayers = gameConnectPacket.connectedPlayers;
                             if (clients[index].connectedPlayers.Count >= 2)
@@ -132,17 +134,19 @@ namespace Server
                             }
                             foreach (KeyValuePair<int, Client> cli in clients)
                             {
-                                if (cli.Value.connectedPlayers.Count < 2)
+                                if(cli.Value.isGame)
                                 {
-                                    if (cli.Value.ID == clients[index].ID)
+                                    if (cli.Value.connectedPlayers.Count < 2)
                                     {
-                                        break; //don't connect to yourself
+                                        if (cli.Value.ID != clients[index].ID)
+                                        {
+                                            cli.Value.connectedPlayers.Add(gameConnectPacket.ID);
+                                            clients[index].connectedPlayers.Add(cli.Value.ID);
+                                            cli.Value.Send(new GameConnectPacket(gameConnectPacket.ID, cli.Value.connectedPlayers, GameConnectPacket.PlayerType.Chooser));
+                                            clients[index].Send(new GameConnectPacket(gameConnectPacket.ID, clients[index].connectedPlayers, GameConnectPacket.PlayerType.Guesser));
+                                            break; //break out of foreach so only connect to one other player
+                                        }
                                     }
-                                    cli.Value.connectedPlayers.Add(gameConnectPacket.ID);
-                                    clients[index].connectedPlayers.Add(cli.Value.ID);
-                                    cli.Value.Send(new GameConnectPacket(gameConnectPacket.ID, cli.Value.connectedPlayers, GameConnectPacket.PlayerType.Chooser));
-                                    clients[index].Send(new GameConnectPacket(gameConnectPacket.ID, clients[index].connectedPlayers, GameConnectPacket.PlayerType.Guesser));
-                                    break; //break out of foreach so only connect to one other player
                                 }
                             }
                             break;

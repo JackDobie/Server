@@ -18,6 +18,8 @@ namespace Server
         private object readLock;
         private object writeLock;
         public string name; //for chat clients
+
+        public bool isGame;
         public int ID; //for game clients
         public List<int> connectedPlayers; //for game clients
 

@@ -97,11 +97,6 @@ namespace Client
         {
             if (string.IsNullOrWhiteSpace(NameTextBox.Text))
                 NameTextBox.Text = userName;
-            else
-            {
-                userName = NameTextBox.Text;
-                client.EditName(userName);
-            }
         }
         void NameTextBox_KeyDown(object sender, KeyEventArgs e)
         {
@@ -159,7 +154,7 @@ namespace Client
                 disconnectedPMs = client.openPrivateMessages.Keys.Where(x => !UserListBox.Items.Contains(x)).ToList();
                 foreach (string str in disconnectedPMs)
                 {
-                    //close private message
+                    //disable private message
                     client.openPrivateMessages.TryGetValue(str, out PrivateMessageForm messageForm);
                     messageForm.DisableChat();
                 }
@@ -168,7 +163,7 @@ namespace Client
                 connectedPMs = client.openPrivateMessages.Keys.Where(x => UserListBox.Items.Contains(x)).ToList();
                 foreach (string str in connectedPMs)
                 {
-                    //close private message
+                    //enable private message
                     client.openPrivateMessages.TryGetValue(str, out PrivateMessageForm messageForm);
                     messageForm.EnableChat();
                 }

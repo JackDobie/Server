@@ -42,6 +42,11 @@ namespace Client
             }
             else
             {
+                if(InputField.ReadOnly)
+                {
+                    InputField.ReadOnly = false;
+                    UpdateChatWindow(otherUser + " has connected to the server.");
+                }
                 MessageWindow.Text += message + Environment.NewLine;
                 MessageWindow.SelectionStart = MessageWindow.Text.Length;
                 MessageWindow.ScrollToCaret();
@@ -72,8 +77,8 @@ namespace Client
 
         public void DisableChat()
         {
-            InputField.ReadOnly = true;
             UpdateChatWindow(otherUser + " has disconnected from the server.");
+            InputField.ReadOnly = true;
         }
         public void EnableChat()
         {

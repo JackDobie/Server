@@ -138,7 +138,7 @@ namespace Client
         }
         public void EditName(string newName)
         {
-            NewNamePacket packet = new NewNamePacket(newName);
+            NewNamePacket packet = new NewNamePacket(newName + "#" + ID);
             SendPacket(packet);
         }
         public void ConnectPacket(string userName)

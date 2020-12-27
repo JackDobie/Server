@@ -77,13 +77,24 @@ namespace Client
 
         public void DisableChat()
         {
-            UpdateChatWindow(otherUser + " has disconnected from the server.");
-            InputField.ReadOnly = true;
+            if (!InputField.ReadOnly)
+            {
+                UpdateChatWindow(otherUser + " has disconnected from the server.");
+                InputField.ReadOnly = true;
+            }
         }
         public void EnableChat()
         {
-            UpdateChatWindow(otherUser + " has connected to the server.");
-            InputField.ReadOnly = false;
+            if (InputField.ReadOnly)
+            {
+                InputField.ReadOnly = false;
+                UpdateChatWindow(otherUser + " has connected to the server.");
+            }
+        }
+
+        public void EditName(string newName)
+        {
+            userName = newName;
         }
 
         private void PMForm_FormClose(object sender, FormClosingEventArgs e)

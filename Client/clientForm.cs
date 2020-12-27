@@ -108,6 +108,10 @@ namespace Client
                 {
                     userName = NameTextBox.Text;
                     client.EditName(userName);
+                    foreach (KeyValuePair<string, PrivateMessageForm> pmform in client.openPrivateMessages)
+                    {
+                        pmform.Value.EditName(userName);
+                    }
                 }
             }
         }

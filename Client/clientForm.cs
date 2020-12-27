@@ -102,7 +102,7 @@ namespace Client
         {
             if(e.KeyCode == Keys.Enter)
             {
-                if (string.IsNullOrWhiteSpace(NameTextBox.Text))
+                if (string.IsNullOrWhiteSpace(NameTextBox.Text) || NameTextBox.Text.Length > 30)
                     NameTextBox.Text = userName;
                 else
                 {
